@@ -1,0 +1,22 @@
+{
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.detectIndentation": false,
+    "[typescript]": {
+        "editor.tabSize": 2
+    },
+    "[javascript]": {
+        "editor.tabSize": 2
+    },
+    "[json]": {
+        "editor.tabSize": 2
+    },
+    "[svelte]": {
+        "editor.tabSize": 2,
+        "editor.defaultFormatter": "svelte.svelte-vscode",
+    },
+    "editor.codeActionsOnSave": {
+        "source.fixAll.tslint": "explicit"
+    },
+    "css.lint.unknownAtRules": "ignore",
+}
