@@ -45,11 +45,10 @@ def generate_openapi_schema(app: FastAPI, path="/tmp/openapi.json"):
 def generate_openapi_code(
     host,
     spec_path="/tmp/openapi.json",
-    output_dir="/frontend/src/backend",
+    output_dir="/app/+app/backend",
     diff_files=False,
 ):
     temp_dir = "/tmp/backend_api"
-    output_dir = "/frontend/src/backend"
 
     run(
         f"openapi-ts "

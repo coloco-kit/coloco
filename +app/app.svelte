@@ -1,25 +1,13 @@
 <script lang="ts">
-  import { route, Router, type Route } from "@mateothegreat/svelte5-router";
-  import { getRoutes } from "./router";
+  import { route, Router } from "@mateothegreat/svelte5-router";
+  import { getRoutes } from "./fakit/router";
   import Index from "./index.svelte";
   import NotFound from "./404.svelte";
 
-  const modules: Record<string, any> = import.meta.glob(
-    ["../**/*.svelte", "!../node_modules/**/*.svelte", "!../+**/*.svelte"],
-    { eager: true },
-  );
-
-  const routes: Route[] = [
-    {
-      path: "^/$",
-      component: Index,
-    },
-    ...getRoutes(modules),
-    {
-      path: ".+",
-      component: NotFound,
-    },
-  ];
+  const routes = getRoutes({
+    index: Index,
+    notFound: NotFound,
+  });
 </script>
 
 <main>

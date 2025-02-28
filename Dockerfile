@@ -1,6 +1,6 @@
 # Dev Container
 
-FROM python:3.12-alpine as backend
+FROM python:3.12-alpine
 
 RUN apk add --update nodejs npm
 
@@ -14,9 +14,13 @@ ADD ./fakit/requirements.txt /app/fakit/requirements.txt
 RUN python -m pip install -r /app/fakit/requirements.txt
 
 # Node Install
+RUN mkdir /.npm && chown -R 1000:1000 "/.npm"
 ADD ./+node/package.json /app/package.json
 ADD ./+node/package-lock.json /app/package-lock.json
 RUN npm install
+
+# Codegen
+RUN npm install -g @hey-api/client-fetch @hey-api/openapi-ts
 
 ADD . /app
 
