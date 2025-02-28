@@ -1,4 +1,4 @@
-from .api import create_api
+from .api import create_api, global_router
 from dataclasses import dataclass
 from fastapi import FastAPI
 from importlib import import_module
@@ -37,6 +37,7 @@ def find_api_files(directory):
 
 def create_app(name: str):
     api = create_api(is_dev=True)
+
     # Discover all api.py files from root, excluding node_modules and +app
     api_files = find_api_files(".")
     for api_file in api_files:
@@ -47,8 +48,11 @@ def create_app(name: str):
         except Exception as e:
             print(f"[red]Error importing '{api_file}': {e}[/red]")
             continue
-        if not hasattr(module, "router"):
-            print(f"[red]Module '{api_file}' has no router[/red]")
-            continue
-        api.include_router(module.router)
+        # if not hasattr(module, "router"):
+        #     print(f"[red]Module '{api_file}' has no router[/red]")
+        #     continue
+        # api.include_router(module.router)
+
+    api.include_router(global_router)
+
     return FakitApp(api=api, name=name)

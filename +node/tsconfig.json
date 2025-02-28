@@ -1,14 +1,46 @@
 {
-    "files": [],
     "compilerOptions": {
-        "composite": true,
-    },
-    "references": [
-        {
-            "path": "./tsconfig.app.json"
+        "rootDirs": [
+            "..",
+            "../+app/.generated/api"
+        ],
+        "verbatimModuleSyntax": true,
+        "isolatedModules": true,
+        "lib": [
+            "esnext",
+            "DOM",
+            "DOM.Iterable"
+        ],
+        "moduleResolution": "bundler",
+        "module": "esnext",
+        "noEmit": true,
+        "target": "esnext",
+        // Project
+        "allowJs": true,
+        "checkJs": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "resolveJsonModule": true,
+        "skipLibCheck": true,
+        "sourceMap": true,
+        "strict": true,
+        "paths": {
+            "@fakit/*": [
+                "../+app/fakit/*"
+            ],
+            "@api/*": [
+                "../+app/.generated/api/*"
+            ]
         },
-        {
-            "path": "./tsconfig.node.json"
-        }
+    },
+    "include": [
+        "../**/*.ts",
+        "../**/*.js",
+        "../**/*.svelte",
+        "./vite.config.ts"
+    ],
+    "exclude": [
+        "../node_modules/**",
+        "../dist/**"
     ]
 }

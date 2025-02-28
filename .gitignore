@@ -1,6 +1,6 @@
 .env
 node_modules
 dist
-+app/backend
++app/.generated
 .vite
 __pycache__

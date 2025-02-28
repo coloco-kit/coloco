@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import logging
 from os import environ
@@ -45,7 +45,7 @@ def create_api(is_dev: bool = False):
     api.service = CORSMiddleware(
         app=api,
         allow_origins=[
-            f"http://localhost:5173",
+            f"http://localhost:5174",
             "https://mysite.app",
         ],
         allow_credentials=True,
@@ -57,3 +57,54 @@ def create_api(is_dev: bool = False):
     bind_exceptions(api)
 
     return api
+
+
+# ========================= Global routing =========================
+
+global_router = APIRouter()
+
+
+def api(func):
+    # Auto-route
+    return _add_global_route([f"/{func.__name__}"], {}, func, "GET")
+
+
+def _add_global_route(args, kwargs, func, method: str):
+    # Prepend module name to path
+    path = args[0] if args else kwargs.get("path", "")
+    path = (
+        # TODO: Make this configurable
+        "/api/"
+        + func.__module__.rsplit(".", 1)[0].replace(".", "/")
+        + ("" if path.startswith("/") else "/")
+        + path
+    )
+    if args:
+        args = (path, *args[1:])
+    else:
+        kwargs["path"] = path
+
+    return global_router.api_route(
+        *args,
+        **{
+            **kwargs,
+            "summary": (kwargs.get("summary", "") + f" ({func.__module__})").strip(),
+            "methods": [method],
+        },
+    )(func)
+
+
+def _make_route_decorator(method: str):
+    def route_wrapper(*args, **kwargs):
+        def handler_wrapper(func):
+            return _add_global_route(args, kwargs, func, method)
+
+        return handler_wrapper
+
+    return route_wrapper
+
+
+api.get = _make_route_decorator("GET")
+api.post = _make_route_decorator("POST")
+api.put = _make_route_decorator("PUT")
+api.delete = _make_route_decorator("DELETE")
