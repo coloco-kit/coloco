@@ -15,9 +15,6 @@ from .exceptions import bind_exceptions
 
 logging.basicConfig(level=logging.INFO)
 
-# Strip development options
-IS_PRODUCTION_MODE = environ.get("ENV") == "production"
-
 
 @asynccontextmanager
 async def generate_openapi(app: FastAPI):

@@ -19,4 +19,7 @@
         "source.fixAll.tslint": "explicit"
     },
     "css.lint.unknownAtRules": "ignore",
+    "files.exclude": {
+        "node_modules/": true
+    }
 }
