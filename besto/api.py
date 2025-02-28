@@ -1,20 +1,18 @@
-from fastapi import APIRouter
+from fakit import api
+from typing import Dict
 
 
-router = APIRouter()
-
-
-@router.get("/")
-def thebestest():
+@api
+def thebestest() -> Dict[str, str]:
     return {"Hello": "World"}
 
 
-@router.get("/testerino", name="besto.testerinozz")
+@api.get("/testerino", name="besto.testerinozz", summary="This is a testerinozz")
 def testerinozz(name: str):
     return {"Hello": name}
 
 
-@router.get("/testerbb/{name}")
+@api.get("/testerbb/{name}")
 def testerbb(name: str):
     return {"Hello": name}
 

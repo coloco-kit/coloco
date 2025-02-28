@@ -3,7 +3,11 @@
   import { getRoutes } from "./fakit/router";
   import Index from "./index.svelte";
   import NotFound from "./404.svelte";
+  import { setupClient } from "@fakit/client";
 
+  setupClient({
+    baseUrl: "http://localhost:5172",
+  });
   const routes = getRoutes({
     index: Index,
     notFound: NotFound,
@@ -11,7 +15,7 @@
 </script>
 
 <main>
-  MAIN<br /><br />
+  MAIN[]<br /><br />
 
   <a use:route href="/">Home</a><br />
   <a use:route href="/test/chongus">chongus</a><br />

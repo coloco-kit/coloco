@@ -20,6 +20,6 @@
     },
     "css.lint.unknownAtRules": "ignore",
     "files.exclude": {
-        "node_modules/": true
+        "node_moduless/": true
     }
 }

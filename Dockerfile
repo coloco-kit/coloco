@@ -25,7 +25,7 @@ RUN npm install -g @hey-api/client-fetch @hey-api/openapi-ts
 ADD . /app
 
 # ADD backend /api
-# RUN python -c "from main import api; from service import generate_openapi_schema; generate_openapi_schema(api, '/tmp/openapi.json')"
+# RUN python -c "from main import app; from fakit.codegen import generate_openapi_schema; generate_openapi_schema(app.api, '/tmp/openapi.json')"
 
 # # Frontend Build
 

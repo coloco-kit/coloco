@@ -45,7 +45,7 @@ def generate_openapi_schema(app: FastAPI, path="/tmp/openapi.json"):
 def generate_openapi_code(
     host,
     spec_path="/tmp/openapi.json",
-    output_dir="/app/+app/backend",
+    output_dir="/app/+app/.generated/client",
     diff_files=False,
 ):
     temp_dir = "/tmp/backend_api"
@@ -55,7 +55,7 @@ def generate_openapi_code(
         f"--base {host} "
         f"--input {spec_path} "
         f"--output {temp_dir if diff_files else output_dir} "
-        f"--client legacy/fetch".split()
+        f"--client @hey-api/client-fetch".split()
     )
     if diff_files:
         compare_and_copy(temp_dir, output_dir)
