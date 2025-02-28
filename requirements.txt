@@ -1,0 +1,5 @@
+configuretron==0.3.0
+httpx==0.27.2
+redis==5.2.1
+python-youtube==0.9.7
+youtube_transcript_api==0.6.3
