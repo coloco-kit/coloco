@@ -1,6 +1,5 @@
-**/node_modules
-frontend/backend
-frontend/dist
+node_modules
+dist
 
 # OS
 .DS_Store

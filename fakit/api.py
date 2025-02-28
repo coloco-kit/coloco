@@ -28,32 +28,35 @@ async def generate_openapi(app: FastAPI):
     yield
 
 
-if IS_PRODUCTION_MODE:
-    kwargs = {
-        "openapi_url": None,
-        "docs_url": None,
-        "redoc_url": None,
-    }
-else:
-    kwargs = {
-        "lifespan": execute_lifespan,
-    }
-    register_lifespan(generate_openapi)
+def create_api(is_dev: bool = False):
+    if not is_dev:
+        kwargs = {
+            "openapi_url": None,
+            "docs_url": None,
+            "redoc_url": None,
+        }
+    else:
+        kwargs = {
+            "lifespan": execute_lifespan,
+        }
+        register_lifespan(generate_openapi)
 
-api = FastAPI(
-    generate_unique_id_function=custom_generate_unique_id,
-    **kwargs,
-)
-api.service = CORSMiddleware(
-    app=api,
-    allow_origins=[
-        f"http://localhost:5173",
-        "https://mysite.app",
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+    api = FastAPI(
+        generate_unique_id_function=custom_generate_unique_id,
+        **kwargs,
+    )
+    api.service = CORSMiddleware(
+        app=api,
+        allow_origins=[
+            f"http://localhost:5173",
+            "https://mysite.app",
+        ],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
-bind_static(api)
-bind_exceptions(api)
+    # bind_static(api)
+    bind_exceptions(api)
+
+    return api
