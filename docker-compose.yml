@@ -10,6 +10,7 @@ services:
       - 5173:5173
     entrypoint: python -m fakit
     command: dev --host 0.0.0.0 main.app
+    tty: true
 
   # Helper Scripts
   install-local-node:

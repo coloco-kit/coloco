@@ -7,7 +7,7 @@ def thebestest() -> Dict[str, str]:
     return {"Hello": "World"}
 
 
-@api.get("/testerino", name="besto.testerinozz", summary="This is a testerinozz")
+@api.get("/testerino", summary="This is a testerinozz")
 def testerinozz(name: str):
     return {"Hello": name}
 

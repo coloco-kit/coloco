@@ -51,11 +51,11 @@ def generate_openapi_code(
     temp_dir = "/tmp/backend_api"
 
     run(
-        f"openapi-ts "
+        f"npx openapi-ts "
         f"--base {host} "
         f"--input {spec_path} "
-        f"--output {temp_dir if diff_files else output_dir} "
-        f"--client @hey-api/client-fetch".split()
+        f"--output {temp_dir if diff_files else output_dir} ".split(),
+        cwd="/app/+node",
     )
     if diff_files:
         compare_and_copy(temp_dir, output_dir)

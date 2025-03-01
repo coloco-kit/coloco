@@ -9,11 +9,9 @@ export const defaultConfig: Plugin.Config<Config> = {
   _handlerLegacy: () => { },
   name: 'fakit-codegen',
   output: 'fakit-codegen',
+  outputPath: './api',
 };
 
-/**
- * Type helper for `my-plugin` plugin, returns {@link Plugin.Config} object
- */
 export const defineConfig: Plugin.DefineConfig<Config> = (config) => ({
   ...defaultConfig,
   ...config,
