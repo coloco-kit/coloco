@@ -40,3 +40,10 @@ def install():
         raise typer.Abort()
 
     print("[green]Packages installed successfully.[/green]")
+
+
+@app.command()
+def dev():
+    """Runs the node dev server"""
+    print("[green]Running node dev server...[/green]")
+    subprocess.run(["npm", "run", "dev"], cwd="+node")

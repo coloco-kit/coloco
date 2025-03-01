@@ -10,13 +10,16 @@ const root = resolve(__dirname, '../');
 export default defineConfig({
   plugins: [svelte()],
   root: resolve(root, '+app'),
+  server: {
+    host: "0.0.0.0",
+  },
   resolve: {
     // @ts-ignore
     alias: [{
       find: './api',
       customResolver: (_, filePath: string) => {
         const subFolder = path.relative(root, dirname(filePath));
-        const apiFile = resolve(root, `+app/.generated/api/${subFolder}/api.ts`);
+        const apiFile = resolve(root, `+app/.generated/client/api/${subFolder}/api.ts`);
         return apiFile;
       }
     },
@@ -28,7 +31,7 @@ export default defineConfig({
     // @ts-ignore
     {
       find: '@api',
-      replacement: '/.generated/api'
+      replacement: '/.generated/client/api'
     }]
   }
 })

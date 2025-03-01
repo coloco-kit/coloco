@@ -20,7 +20,7 @@ ADD ./+node/package-lock.json /app/package-lock.json
 RUN npm install
 
 # Codegen
-RUN npm install -g @hey-api/client-fetch @hey-api/openapi-ts
+# RUN npm install -g @hey-api/client-fetch @hey-api/openapi-ts
 
 ADD . /app
 

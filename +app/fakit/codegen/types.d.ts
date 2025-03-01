@@ -9,4 +9,10 @@ export interface Config {
    * @default 'fakit-codegen'
    */
   output?: string;
+  /**
+   * Path to the output directory.
+   *
+   * @default './api'
+   */
+  outputPath?: string;
 }

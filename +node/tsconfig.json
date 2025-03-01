@@ -2,7 +2,7 @@
     "compilerOptions": {
         "rootDirs": [
             "..",
-            "../+app/.generated/api"
+            "../+app/.generated/client/api"
         ],
         "verbatimModuleSyntax": true,
         "isolatedModules": true,
@@ -29,7 +29,7 @@
                 "../+app/fakit/*"
             ],
             "@api/*": [
-                "../+app/.generated/api/*"
+                "../+app/.generated/client/api/*"
             ]
         },
     },
