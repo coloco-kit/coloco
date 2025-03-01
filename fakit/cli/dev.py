@@ -8,6 +8,7 @@ def dev(app: str, host: str = "127.0.0.1"):
     serve(
         app=app,
         host=host,
+        port=5172,
         reload=True,
         log_level="debug",
     )

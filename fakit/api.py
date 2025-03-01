@@ -45,7 +45,7 @@ def create_api(is_dev: bool = False):
     api.service = CORSMiddleware(
         app=api,
         allow_origins=[
-            f"http://localhost:5174",
+            f"http://localhost:5173",
             "https://mysite.app",
         ],
         allow_credentials=True,

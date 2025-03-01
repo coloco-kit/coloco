@@ -20,8 +20,8 @@
     },
     "css.lint.unknownAtRules": "ignore",
     "files.exclude": {
-        //"node_modules/": true,
-        // "fakit/": true,
-        // "+app/fakit/": true
+        "node_modules/": true,
+        "fakit/": true,
+        "+app/fakit/": true
     }
 }
