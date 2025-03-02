@@ -1,3 +1,3 @@
-from fakit import create_app
+from jooze import create_app
 
 app = create_app(name="{{ project_name }}")

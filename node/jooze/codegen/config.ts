@@ -7,8 +7,8 @@ export const defaultConfig: Plugin.Config<Config> = {
   _dependencies: ['@hey-api/typescript'],
   _handler: handler,
   _handlerLegacy: () => { },
-  name: 'fakit-codegen',
-  output: 'fakit-codegen',
+  name: 'jooze-codegen',
+  output: 'jooze-codegen',
   outputPath: './api',
 };
 

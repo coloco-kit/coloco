@@ -2,7 +2,7 @@ from importlib import import_module
 import typer
 from rich import print
 import uvicorn
-from ..app import FakitApp
+from ..app import JoozeApp
 
 
 app = typer.Typer()
@@ -35,8 +35,8 @@ def serve(
 
     var = getattr(module, var_name)
 
-    if not isinstance(var, FakitApp):
-        print(f"[red]{var_name} is not a FakitApp.  Please use create_app[/red]")
+    if not isinstance(var, JoozeApp):
+        print(f"[red]{var_name} is not a JoozeApp.  Please use create_app[/red]")
         raise typer.Abort()
 
     uvicorn.run(

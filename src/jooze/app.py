@@ -7,7 +7,7 @@ from rich import print
 
 
 @dataclass
-class FakitApp:
+class JoozeApp:
     api: FastAPI
     name: str
 
@@ -25,7 +25,7 @@ def find_api_files(directory):
                     if (
                         not entry.name.startswith("+")
                         and not entry.name == "node_modules"
-                        and not entry.name == "fakit"
+                        and not entry.name == "jooze"
                     ):
                         api_files.extend(find_api_files(entry.path))
                 elif entry.is_file() and entry.name == "api.py":
@@ -55,4 +55,4 @@ def create_app(name: str):
 
     api.include_router(global_router)
 
-    return FakitApp(api=api, name=name)
+    return JoozeApp(api=api, name=name)

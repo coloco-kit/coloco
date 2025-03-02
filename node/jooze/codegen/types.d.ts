@@ -2,11 +2,11 @@ export interface Config {
   /**
    * Plugin name. Must be unique.
    */
-  name: 'fakit-codegen';
+  name: 'jooze-codegen';
   /**
    * Name of the generated file.
    *
-   * @default 'fakit-codegen'
+   * @default 'jooze-codegen'
    */
   output?: string;
   /**

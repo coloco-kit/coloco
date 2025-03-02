@@ -9,9 +9,9 @@ WORKDIR /app
 ADD ./requirements.txt /app/requirements.txt
 RUN python -m pip install -r /app/requirements.txt
 
-# TODO: remove this when fakit is a package
-ADD ./fakit/requirements.txt /app/fakit/requirements.txt
-RUN python -m pip install -r /app/fakit/requirements.txt
+# TODO: remove this when jooze is a package
+ADD ./jooze/requirements.txt /app/jooze/requirements.txt
+RUN python -m pip install -r /app/jooze/requirements.txt
 
 # Node Install
 RUN mkdir /.npm && chown -R 1000:1000 "/.npm"
@@ -25,7 +25,7 @@ RUN npm install
 ADD . /app
 
 # ADD backend /api
-# RUN python -c "from main import app; from fakit.codegen import generate_openapi_schema; generate_openapi_schema(app.api, '/tmp/openapi.json')"
+# RUN python -c "from main import app; from jooze.codegen import generate_openapi_schema; generate_openapi_schema(app.api, '/tmp/openapi.json')"
 
 # # Frontend Build
 
@@ -56,4 +56,4 @@ ADD . /app
 # COPY --from=frontend /app/dist /api/static
 # ENV MODE=production
 
-CMD ["python", "-m", "fakit", "start"]
+CMD ["python", "-m", "jooze", "start"]

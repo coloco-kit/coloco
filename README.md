@@ -1,4 +1,4 @@
-# FA-Kit
+# 🧃 Jooze
 
 A kit for creating FastAPI + Svelte applications focusing on locality of code and decreased boilerplate.  Create simple full-stack apps with built-in codegen.  Deploy with a package that can be hosted with python or a docker container.
 
@@ -8,7 +8,7 @@ Example:
 
 `hello/api.py`
 ```python
-from fakit import api
+from jooze import api
 
 @api
 def test(name: str) -> str:
