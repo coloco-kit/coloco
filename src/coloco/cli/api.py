@@ -10,7 +10,7 @@ app = typer.Typer()
 
 @app.command()
 def serve(
-    app: str,
+    app: str = "main.app",
     host: str = "127.0.0.1",
     port: int = 80,
     log_level: str = "info",

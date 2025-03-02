@@ -19,13 +19,13 @@ def test(name: str) -> str:
 <script lang="ts">
   import { test } from "./api";
 
-  const results = test({ query: { name: "Coloco" } });
+  const response = test({ query: { name: "Coloco" } });
 </script>
 
-{#if $results.loading}
+{#if $response.loading}
     Loading...
 {:else}
-    The server says {$results.data}
+    The server says {$response.data}
 {/if}
 ```
 
@@ -39,3 +39,12 @@ This framework is opinionated and combines the following excellent tools:
  * openapi-ts (codegen)
  * svelte5-router (file-based routing)
  * tortoise-orm (optional)
+
+# Plans
+ * Deploy tools
+ * ORM Support
+ * SQLite/Postgres support
+
+# Dreams
+ * Move `node_modules` into `+node`
+ * Remove the need for `query`, `params`, `body` for simple REST requests (maybe use legacy client but support the new one?)

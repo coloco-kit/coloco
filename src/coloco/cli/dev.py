@@ -3,7 +3,7 @@ from .api import serve
 from subprocess import Popen
 
 
-def dev(app: str, host: str = "127.0.0.1"):
+def dev(app: str = "main.app", host: str = "127.0.0.1"):
     node = Popen([f"npm run dev"], cwd="+node", shell=True)
     serve(
         app=app,
