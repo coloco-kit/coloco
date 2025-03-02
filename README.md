@@ -1,8 +1,8 @@
 # FA-Kit
 
-A kit for creating FastAPI + Svelte applications.  Made to reduce boilerplate and increase locality of code.  Create full-stack apps with auto-generated types and API calling code.  Deploy with a package that can be hosted with python or a docker container.
+A kit for creating FastAPI + Svelte applications focusing on locality of code and decreased boilerplate.  Create simple full-stack apps with built-in codegen.  Deploy with a package that can be hosted with python or a docker container.
 
-File-based routing for your front-end and back-end.  Expose API endpoints with openapi docs via `fastapi`.  Generate a front-end with `svelte`.
+File-based routing for your front-end and back-end.  Expose API endpoints with docs via `fastapi`.  Generate a front-end with `svelte`.
 
 Example:
 
@@ -10,7 +10,7 @@ Example:
 ```python
 from fakit import api
 
-@api.post("/test")
+@api
 def test(name: str) -> str:
     return f"Hello {name}!"
 
@@ -32,3 +32,12 @@ def test(name: str) -> str:
 ```
 
 Serves the page `myapp.com/hello`, which calls `myapp.com/hello/test?name=DoItLive` and prints the message `Hello DoItLive!`
+
+# Opinions
+
+This framework is opinionated and combines the following tools/concepts:
+ * FastAPI
+ * Svelte
+ * openapi-ts (codegen)
+ * file-based routing
+ * tortoise-orm (optional)
