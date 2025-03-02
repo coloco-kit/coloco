@@ -1,0 +1,6 @@
+.env
+node_modules
+dist
++app/.generated
+.vite
+__pycache__

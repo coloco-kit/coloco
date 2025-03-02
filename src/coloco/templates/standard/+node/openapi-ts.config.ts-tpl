@@ -1,0 +1,10 @@
+import { defaultPlugins } from '@hey-api/openapi-ts';
+import { defineConfig } from '@coloco/codegen-svelte';
+
+export default {
+  plugins: [
+    ...defaultPlugins,
+    '@hey-api/client-fetch',
+    defineConfig({ name: 'coloco-codegen', outputPath: './api' }),
+  ],
+};
