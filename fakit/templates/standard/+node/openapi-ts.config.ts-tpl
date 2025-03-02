@@ -1,0 +1,10 @@
+import { defaultPlugins } from '@hey-api/openapi-ts';
+import { defineConfig } from '@fakit/codegen-svelte';
+
+export default {
+  plugins: [
+    ...defaultPlugins,
+    '@hey-api/client-fetch',
+    defineConfig({ name: 'fakit-codegen', outputPath: './api' }),
+  ],
+};

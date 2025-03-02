@@ -1,0 +1,25 @@
+<script lang="ts">
+  import { route, Router } from "@mateothegreat/svelte5-router";
+  import { getRoutes } from "./fakit/router";
+  import Index from "./index.svelte";
+  import NotFound from "./404.svelte";
+  import { setupClient } from "@fakit/client";
+
+  setupClient({
+    baseUrl: "http://localhost:5172",
+  });
+  const routes = getRoutes({
+    index: Index,
+    notFound: NotFound,
+  });
+</script>
+
+<main>
+  Main Page<br /><br />
+
+  <a use:route href="/">Home</a><br />
+  <a use:route href="/example">Example</a><br />
+  <a use:route href="/missing">Missing</a>
+
+  <Router basePath="/" {routes} />
+</main>
