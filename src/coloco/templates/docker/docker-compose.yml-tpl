@@ -1,0 +1,29 @@
+services:
+  app:
+    build: .
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    user: 1000:1000
+    ports:
+      - 5172:5172
+      - 5173:5173
+    entrypoint: python -m coloco
+    command: dev --host 0.0.0.0 main.app
+    tty: true
+
+  # Helper Scripts
+  install-local-node:
+    profiles: [ script ]
+    build: .
+    user: 1000:1000
+    volumes:
+      - ./:/app
+    command: python -m coloco node install
+
+  shell:
+    profiles: [ script ]
+    build: .
+    volumes:
+      - ./:/app
+    command: sh

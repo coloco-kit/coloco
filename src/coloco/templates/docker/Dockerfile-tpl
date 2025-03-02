@@ -1,0 +1,59 @@
+# Dev Container
+
+FROM python:3.12-alpine
+
+RUN apk add --update nodejs npm
+
+# Python Install
+WORKDIR /app
+ADD ./requirements.txt /app/requirements.txt
+RUN python -m pip install -r /app/requirements.txt
+
+# TODO: remove this when coloco is a package
+ADD ./coloco/requirements.txt /app/coloco/requirements.txt
+RUN python -m pip install -r /app/coloco/requirements.txt
+
+# Node Install
+RUN mkdir /.npm && chown -R 1000:1000 "/.npm"
+ADD ./+node/package.json /app/package.json
+ADD ./+node/package-lock.json /app/package-lock.json
+RUN npm install
+
+# Codegen
+# RUN npm install -g @hey-api/client-fetch @hey-api/openapi-ts
+
+ADD . /app
+
+# ADD backend /api
+# RUN python -c "from main import app; from coloco.codegen import generate_openapi_schema; generate_openapi_schema(app.api, '/tmp/openapi.json')"
+
+# # Frontend Build
+
+# FROM node:20-alpine as frontend
+
+# WORKDIR /app
+
+# ADD frontend/package.json /app/package.json
+# ADD frontend/package-lock.json /app/package-lock.json
+
+# RUN npm install
+
+# COPY --from=backend /tmp/openapi.json /tmp/openapi.json
+
+# RUN npx @hey-api/openapi-ts \
+#     --base https://mysite.app \
+#     --input /tmp/openapi.json \
+#     --output /app/src/backend \
+#     --client legacy/fetch
+
+# ADD frontend /app
+# RUN npm run build
+
+# # Combined Image
+
+# FROM backend
+
+# COPY --from=frontend /app/dist /api/static
+# ENV MODE=production
+
+CMD ["python", "-m", "coloco", "start"]

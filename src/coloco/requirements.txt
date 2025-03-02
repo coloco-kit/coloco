@@ -1,0 +1,6 @@
+aerich[toml]==0.8.1
+fastapi==0.115.0
+PyJWT==2.10.1
+tortoise-orm[asyncpg]==0.24.0
+typer==0.15.2
+uvicorn==0.31.0
