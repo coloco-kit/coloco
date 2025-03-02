@@ -21,7 +21,7 @@
     "css.lint.unknownAtRules": "ignore",
     "files.exclude": {
         "node_modules/": true,
-        // "jooze/": true,
-        // "+app/jooze/": true
+        // "coloco/": true,
+        // "+app/coloco/": true
     }
 }
