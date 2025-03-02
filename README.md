@@ -1,8 +1,6 @@
 # Coloco
 
-A kit for creating FastAPI + Svelte applications focusing on locality of code and decreased boilerplate.  Create simple full-stack apps with built-in codegen.  Deploy with a package that can be hosted with python or a docker container.
-
-File-based routing for your front-end and back-end.  Expose API endpoints with docs via `fastapi`.  Generate a front-end with `svelte`.
+A kit for creating full-stack apps with co-located code, built on FastAPI and Svelte.  Bundle your front-end and back-end code and easily tie them together with codegen.
 
 Example:
 
@@ -21,7 +19,7 @@ def test(name: str) -> str:
 <script lang="ts">
   import { test } from "./api";
 
-  const results = test({ query: { name: "DoItLive" } });
+  const results = test({ query: { name: "Coloco" } });
 </script>
 
 {#if $results.loading}
@@ -31,13 +29,13 @@ def test(name: str) -> str:
 {/if}
 ```
 
-Serves the page `myapp.com/hello`, which calls `myapp.com/hello/test?name=DoItLive` and prints the message `Hello DoItLive!`
+Serves the page `myapp.com/hello`, which calls `myapp.com/hello/test?name=Coloco` and prints the message `Hello Coloco!`
 
 # Opinions
 
-This framework is opinionated and combines the following tools/concepts:
+This framework is opinionated and combines the following excellent tools:
  * FastAPI
  * Svelte
  * openapi-ts (codegen)
- * file-based routing (using svelte5-router)
+ * svelte5-router (file-based routing)
  * tortoise-orm (optional)
