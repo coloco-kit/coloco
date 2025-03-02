@@ -11,6 +11,6 @@ class Input(BaseModel):
     name: str
 
 
-@api.post("/testQQ")
-def testQQ(input: Input) -> Result:
+@api.post("/test")
+def test(input: Input) -> Result:
     return Result(message=f"Hello {input.name}")
