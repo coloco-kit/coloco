@@ -1,16 +1,6 @@
 from fakit import api
-from typing import Dict
-from pydantic import BaseModel
 
 
-class Result(BaseModel):
-    message: str
-
-
-class Input(BaseModel):
-    name: str
-
-
-@api.post("/test")
-def test(input: Input) -> Result:
-    return Result(message=f"Hello {input.name}")
+@api
+def test(name: str) -> str:
+    return f"Hello {name}"
