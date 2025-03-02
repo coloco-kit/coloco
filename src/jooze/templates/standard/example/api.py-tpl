@@ -1,4 +1,4 @@
-from fakit import api
+from jooze import api
 
 
 @api

@@ -26,7 +26,7 @@ export const handler: Plugin.Handler<Config> = ({ context, plugin }) => {
       fs.writeFileSync(
         outputPath,
         `import { ${operations.join(', ')} } from "${importRelative}/sdk.gen";\n` +
-        `import { apiCall } from "@fakit/client";\n` +
+        `import { apiCall } from "@jooze/client";\n` +
         operations.map(operation => `const ${operation}Wrapped = apiCall(${operation});\n`).join('') +
         `export { ${operations.map(operation => `${operation}Wrapped as ${operation}`).join(', ')} };`
       );

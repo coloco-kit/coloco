@@ -8,7 +8,7 @@ services:
     ports:
       - 5172:5172
       - 5173:5173
-    entrypoint: python -m fakit
+    entrypoint: python -m jooze
     command: dev --host 0.0.0.0 main.app
     tty: true
 
@@ -19,7 +19,7 @@ services:
     user: 1000:1000
     volumes:
       - ./:/app
-    command: python -m fakit node install
+    command: python -m jooze node install
 
   shell:
     profiles: [ script ]

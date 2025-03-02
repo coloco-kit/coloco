@@ -14,7 +14,7 @@ def install():
     # if not exists +node/package.json, raise error
     if not os.path.exists("+node/package.json"):
         print(
-            "[red]Error: +node/package.json not found.  Please ensure you are in a fakit project directory.[/red]"
+            "[red]Error: +node/package.json not found.  Please ensure you are in a jooze project directory.[/red]"
         )
         raise typer.Abort()
 
