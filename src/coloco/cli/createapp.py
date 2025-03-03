@@ -1,7 +1,6 @@
-import typer
 from rich import print
+from .node import install
 import os
-import shutil
 
 
 def createapp(name: str):
@@ -9,7 +8,6 @@ def createapp(name: str):
     template_dir = f"{current_dir}/../templates/standard"
     install_dir = f"{os.getcwd()}/{name}"
     print(f"Creating app {name}...")
-    print(f"App created in {install_dir}")
 
     template_vars = {
         "project_name": name,
@@ -34,3 +32,10 @@ def createapp(name: str):
                     os.path.join(install_dir, relative_path, file[:-4]), "w"
                 ) as f:
                     f.write(content)
+
+    print(f"App created in {install_dir}")
+
+    print(f"Installing node dependencies...")
+    os.chdir(install_dir)
+    install()
+    print(f"\nReady to go!\n\nRun [green]coloco dev[/green] from [yellow]{name}[/yellow] to start the app.")
