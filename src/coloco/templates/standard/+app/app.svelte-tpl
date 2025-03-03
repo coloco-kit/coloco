@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { setupClient } from "@coloco/client";
+  import { setupClient } from "@coloco/api-client-svelte";
   import { route, Router, getRoutes } from "@coloco/router";
 
   import Index from "./index.svelte";
@@ -15,11 +15,15 @@
 </script>
 
 <main>
-  Main Page<br /><br />
+  Main Page
+  
+  <br /><br />
 
   <a use:route href="/">Home</a><br />
   <a use:route href="/example">Example</a><br />
   <a use:route href="/missing">Missing</a>
+  
+  <br /><br />
 
   <Router basePath="/" {routes} />
 </main>
