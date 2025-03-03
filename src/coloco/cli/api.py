@@ -1,8 +1,10 @@
-from importlib import import_module
-import typer
-from rich import print
-import uvicorn
 from ..app import ColocoApp
+from importlib import import_module
+import os
+from rich import print
+import sys
+import typer
+import uvicorn
 
 
 app = typer.Typer()
@@ -22,8 +24,11 @@ def serve(
         )
         raise typer.Abort()
 
+
     module_name, var_name = app.rsplit(".", 1)
     try:
+        # Needed for when running the binary
+        sys.path.append(os.getcwd())
         module = import_module(module_name)
     except ImportError:
         print(f"[red]Module or python file {module_name} not found[/red]")

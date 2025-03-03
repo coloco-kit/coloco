@@ -9,10 +9,6 @@ WORKDIR /app
 ADD ./requirements.txt /app/requirements.txt
 RUN python -m pip install -r /app/requirements.txt
 
-# TODO: remove this when coloco is a package
-ADD ./coloco/requirements.txt /app/coloco/requirements.txt
-RUN python -m pip install -r /app/coloco/requirements.txt
-
 # Node Install
 RUN mkdir /.npm && chown -R 1000:1000 "/.npm"
 ADD ./+node/package.json /app/package.json
