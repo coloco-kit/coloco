@@ -16,7 +16,7 @@ readme = "README.md"
 license = { text = "MIT" }
 
 [project.scripts]
-coloco = "coloco:main"
+coloco = "coloco:__main__.app"
 
 [build-system]
 requires = ["pdm-backend"]
