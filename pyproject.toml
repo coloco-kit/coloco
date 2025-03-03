@@ -1,6 +1,6 @@
 [project]
 name = "coloco"
-version = "0.1.2"
+version = "0.1.3"
 description = "A kit for creating FastAPI + Svelte applications"
 authors = [{ name = "Channel Cat", email = "channelcat@gmail.com" }]
 dependencies = [
@@ -16,7 +16,7 @@ readme = "README.md"
 license = { text = "MIT" }
 
 [project.scripts]
-coloco = "coloco:__main__.app"
+coloco = "coloco.__main__:app"
 
 [build-system]
 requires = ["pdm-backend"]
