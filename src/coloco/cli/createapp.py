@@ -35,7 +35,4 @@ def createapp(name: str):
 
     print(f"App created in {install_dir}")
 
-    print(f"Installing node dependencies...")
-    os.chdir(install_dir)
-    install()
-    print(f"\nReady to go!\n\nRun [green]coloco dev[/green] from [yellow]{name}[/yellow] to start the app.")
+    print(f"\nRun [green]coloco dev[/green] from [yellow]{name}[/yellow] to start the app.")
