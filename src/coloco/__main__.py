@@ -11,5 +11,12 @@ app.add_typer(node_app, name="node")
 app.add_typer(api_app, name="api")
 app.command()(createapp)
 
+# Add DB if tortoise/aerich are installed
+try:
+    from .cli.db import app as db_app
+    app.add_typer(db_app, name="db")
+except ImportError:
+    pass
+
 if __name__ == "__main__":
     app()

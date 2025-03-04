@@ -14,8 +14,10 @@ async def execute_lifespan(app: FastAPI):
         contexts.append(generator)
         if hasattr(generator, "__aenter__"):
             await generator.__aenter__()
-        else:
+        elif hasattr(generator, "__enter__"):
             next(generator)
+        else:
+            raise ValueError(f"Invalid lifespan handler: {lifespan_handler}.  Must be an sync/async context manager.")
 
     yield
 

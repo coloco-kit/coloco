@@ -31,6 +31,12 @@ def test(name: str) -> str:
 
 Serves the page `myapp.com/hello`, which calls `myapp.com/hello/test?name=Coloco` and prints the message `Hello Coloco!`
 
+# Getting Started
+
+ * `pip install coloco`
+ * `coloco createapp myapp`
+ * From `myapp` - `coloco dev`
+
 # Opinions
 
 This framework is opinionated and combines the following excellent tools:
