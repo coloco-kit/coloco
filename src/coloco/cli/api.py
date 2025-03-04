@@ -10,7 +10,7 @@ import uvicorn
 app = typer.Typer()
 
 
-def _verify_app(app: str):
+def _verify_app(app: str = "main.app"):
     if not "." in app:
         print(
             "[red]App should be the name of a variable in a python file, example: main.py -> api = main.api[/red]"
