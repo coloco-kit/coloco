@@ -6,6 +6,8 @@ from importlib import import_module
 from .lifespan import register_lifespan
 import os
 from rich import print
+import traceback
+
 
 @dataclass
 class ColocoApp:
@@ -14,7 +16,8 @@ class ColocoApp:
     database_url: str = None
     orm_config: dict = None
     migrations_dir: str = "./+migrations"
-    
+
+
 def discover_files(directory, name):
     api_files = []
     try:
@@ -38,6 +41,8 @@ def discover_files(directory, name):
 
 
 CURRENT_APP = None
+
+
 def create_app(name: str, database_url: str = None) -> ColocoApp:
     global CURRENT_APP
     if CURRENT_APP:
@@ -54,19 +59,25 @@ def create_app(name: str, database_url: str = None) -> ColocoApp:
             module = import_module(module_name)
         except Exception as e:
             print(f"[red]Error importing '{api_file}': {e}[/red]")
+            print(traceback.format_exc())
             continue
 
     api.include_router(global_router)
 
     # Setup Database
     if database_url:
-        orm_config = get_orm_config(database_url, model_files=discover_files(".", name="models.py"))
+        orm_config = get_orm_config(
+            database_url, model_files=discover_files(".", name="models.py")
+        )
         register_lifespan(lifecycle_connect_database)
     else:
         orm_config = None
 
-    CURRENT_APP = ColocoApp(api=api, name=name, database_url=database_url, orm_config=orm_config)
+    CURRENT_APP = ColocoApp(
+        api=api, name=name, database_url=database_url, orm_config=orm_config
+    )
     return CURRENT_APP
+
 
 def get_current_app() -> ColocoApp:
     if not CURRENT_APP:
