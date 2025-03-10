@@ -19,7 +19,7 @@ def test(name: str) -> str:
 <script lang="ts">
   import { test } from "./api";
 
-  const response = test({ query: { name: "Coloco" } });
+  const response = test({ name: "Coloco" });
 </script>
 
 {#if $response.loading}
@@ -53,4 +53,4 @@ This framework is opinionated and combines the following excellent tools:
 
 # Dreams
  * Move `node_modules` into `+node`
- * Remove the need for `query`, `params`, `body` for simple REST requests (maybe use legacy client but support the new one?)
+ * Somehow clean up litter from `uv`
