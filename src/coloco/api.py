@@ -1,16 +1,16 @@
-from contextlib import asynccontextmanager
-from fastapi import APIRouter, FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-import logging
-from os import environ
 from .codegen import (
     custom_generate_unique_id,
     generate_openapi_code,
     generate_openapi_schema,
 )
-from .lifespan import execute_lifespan, register_lifespan
-from .static import bind_static
+from contextlib import asynccontextmanager
 from .exceptions import bind_exceptions
+from fastapi import APIRouter, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from .lifespan import execute_lifespan, register_lifespan
+import logging
+from os import environ
+from .inference import fill_inferred_type_hints
 
 
 logging.basicConfig(level=logging.INFO)
@@ -70,6 +70,8 @@ def api(func):
 
 
 def _add_global_route(args, kwargs, func, method: str):
+    fill_inferred_type_hints(func)
+
     # Prepend module name to path
     path = args[0] if args else kwargs.get("path", "")
     path = (
