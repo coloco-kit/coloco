@@ -175,6 +175,7 @@ def _resolve_annotation(
                 return Union
 
     # Fallback for unresolved or complex annotations
+
     return Any
 
 
@@ -273,6 +274,14 @@ def _infer_expr_type(
             return int
 
         return Any
+
+    elif isinstance(node, ast.Compare):
+        return bool
+
+    elif isinstance(node, ast.IfExp):
+        body_type = _infer_expr_type(node.body, symbol_table, func, nested_path)
+        orelse_type = _infer_expr_type(node.orelse, symbol_table, func, nested_path)
+        return body_type | orelse_type
 
     # Default for complex or unknown expressions
     return Any
