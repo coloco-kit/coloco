@@ -6,7 +6,9 @@ from importlib import import_module
 from .lifespan import register_lifespan
 import os
 from rich import print
+from .static import bind_static
 import traceback
+from typing import Literal
 
 
 @dataclass
@@ -48,7 +50,8 @@ def create_app(name: str, database_url: str = None) -> ColocoApp:
     if CURRENT_APP:
         raise ValueError("Coloco app already created")
 
-    api = create_api(is_dev=True)
+    mode: Literal["dev", "prod"] = os.environ.get("COLOCO_MODE", "dev")
+    api = create_api(is_dev=mode == "dev")
 
     # Discover all api.py files from root, excluding node_modules and +app
     api_files = discover_files(".", name="api.py")
@@ -63,6 +66,13 @@ def create_app(name: str, database_url: str = None) -> ColocoApp:
             continue
 
     api.include_router(global_router)
+    from fastapi.staticfiles import StaticFiles
+
+    api.mount("/assets", StaticFiles(directory="dist/app/assets"), name="assets")
+
+    # Production mode serves dist
+    if mode == "prod":
+        bind_static(api)
 
     # Setup Database
     if database_url:

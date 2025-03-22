@@ -37,6 +37,10 @@ def _run_npm(command):
         raise typer.Abort()
 
 
+def _setup_dev_env():
+    os.environ["API_HOST"] = "http://localhost:5172"
+
+
 @app.command()
 def install():
     """Installs node dependencies for the project"""
@@ -68,4 +72,13 @@ def link(package: str):
 def dev():
     """Runs the node dev server"""
     print("[green]Running node dev server...[/green]")
+    _setup_dev_env()
     subprocess.run(["npm", "run", "dev"], cwd="+node")
+
+
+@app.command()
+def build(dir: str = None):
+    """Runs the node dev server"""
+    print("[green]Building node app...[/green]")
+
+    subprocess.run(["npm", "run", "build"], cwd="+node")

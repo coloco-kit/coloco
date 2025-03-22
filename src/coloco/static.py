@@ -4,9 +4,9 @@ from fastapi.staticfiles import StaticFiles
 
 
 # Static Files
-def bind_static(api: FastAPI):
-    api.mount("/static", StaticFiles(directory="static"), name="static")
+def bind_static(api: FastAPI, dist_dir: str = "dist"):
+    api.mount("/assets", StaticFiles(directory=f"{dist_dir}/app/assets"), name="static")
 
-    @api.get("/")
-    def index():
-        return FileResponse("static/index.html")
+    @api.get("/{all_paths:path}")
+    async def serve_app(all_paths: str):
+        return FileResponse(f"{dist_dir}/app/index.html")

@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .lifespan import execute_lifespan, register_lifespan
 import logging
 from os import environ
-from .inference import fill_inferred_type_hints
+from type_less import fill_type_hints
 
 
 logging.basicConfig(level=logging.INFO)
@@ -54,7 +54,7 @@ def create_api(is_dev: bool = False):
     )
 
     # bind_static(api)
-    bind_exceptions(api)
+    bind_exceptions(api, debug=is_dev)
 
     return api
 
@@ -70,7 +70,7 @@ def api(func):
 
 
 def _add_global_route(args, kwargs, func, method: str):
-    fill_inferred_type_hints(func)
+    fill_type_hints(func, use_literals=True)
 
     # Prepend module name to path
     path = args[0] if args else kwargs.get("path", "")

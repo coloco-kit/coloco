@@ -14,6 +14,10 @@ export default defineConfig({
     host: "0.0.0.0",
     port: 5173,
   },
+  build: {
+    outDir: '../dist/app',
+    emptyOutDir: true, // also necessary
+  },
   clearScreen: false,
   resolve: {
     // @ts-ignore
@@ -29,6 +33,16 @@ export default defineConfig({
     {
       find: '@api',
       replacement: '/.generated/client/api'
+    },
+    // @ts-ignore
+    {
+      find: '@app/',
+      replacement: '/'
+    },
+    // @ts-ignore
+    {
+      find: '@root',
+      replacement: '/..'
     }]
   }
 })
