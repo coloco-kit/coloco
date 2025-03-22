@@ -10,8 +10,8 @@
     "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json"
   },
   "devDependencies": {
-    "@coloco/api-client-svelte": "^0.1.1",
-    "@coloco/router": "^0.1.2",
+    "@coloco/api-client-svelte": "^0.3.0",
+    "@coloco/router": "^0.1.5",
     "@hey-api/client-fetch": "^0.8.2",
     "@hey-api/openapi-ts": "^0.64.7",
     "@sveltejs/vite-plugin-svelte": "^5.0.3",

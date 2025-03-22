@@ -37,6 +37,12 @@ Serves the page `myapp.com/hello`, which calls `myapp.com/hello/test?name=Coloco
 - `coloco createapp myapp`
 - From `myapp` - `coloco dev`
 
+# Running in Production
+
+- `coloco build`
+
+- `coloco serve`
+
 # Opinions
 
 This framework is opinionated and combines the following excellent tools:
@@ -52,8 +58,16 @@ This framework is opinionated and combines the following excellent tools:
 - Deploy tools
 - ORM Support
 - SQLite/Postgres support
+- Package/share modules with git
 
 # Dreams
 
 - Move `node_modules` into `+node`
 - Somehow clean up litter from `uv`
+
+# TODO
+
+- Swap to `cyclopts` for CLI
+- Swap to `copier` for template creation
+- `Textual` CLI app / installer / dev tools?
+- Common dev `admin` module
