@@ -10,7 +10,7 @@ Example:
 from coloco import api
 
 @api
-def test(name: str) -> str:
+def test(name: str):
     return f"Hello {name}!"
 
 ```

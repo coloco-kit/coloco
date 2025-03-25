@@ -66,9 +66,6 @@ def create_app(name: str, database_url: str = None) -> ColocoApp:
             continue
 
     api.include_router(global_router)
-    from fastapi.staticfiles import StaticFiles
-
-    api.mount("/assets", StaticFiles(directory="dist/app/assets"), name="assets")
 
     # Production mode serves dist
     if mode == "prod":
