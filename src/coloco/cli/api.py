@@ -12,7 +12,7 @@ import uvicorn
 app = typer.Typer()
 
 
-def _verify_app(app: str = "main.app") -> ColocoApp:
+def _verify_app(app: str = "src.main.app") -> ColocoApp:
     if not "." in app:
         print(
             "[red]App should be the name of a variable in a python file, example: main.py -> api = main.api[/red]"
@@ -24,7 +24,7 @@ def _verify_app(app: str = "main.app") -> ColocoApp:
         # Needed for when running the binary
         sys.path.append(os.getcwd())
         module = import_module(module_name)
-    except ImportError:
+    except ModuleNotFoundError:
         print(f"[red]Module or python file {module_name} not found[/red]")
         raise typer.Abort()
 

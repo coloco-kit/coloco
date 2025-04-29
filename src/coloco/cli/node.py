@@ -9,31 +9,17 @@ app = typer.Typer()
 
 def _run_npm(command):
     # if not exists +node/package.json, raise error
-    if not os.path.exists("+node/package.json"):
+    if not os.path.exists("package.json"):
         print(
-            "[red]Error: +node/package.json not found.  Please ensure you are in a coloco project directory.[/red]"
+            "[red]Error: package.json not found.  Please ensure you are in a coloco project directory.[/red]"
         )
         raise typer.Abort()
-
-    # copy +node/package.json to /package.json
-    shutil.copyfile("+node/package.json", "package.json")
-    if os.path.exists("+node/package-lock.json"):
-        shutil.copyfile("+node/package-lock.json", "package-lock.json")
 
     try:
         # run npm install
         subprocess.run(command, cwd=".")
-
-        # move package.json and package-lock.json back to +node
-        shutil.move("package.json", "+node/package.json")
-        shutil.move("package-lock.json", "+node/package-lock.json")
     except Exception as e:
         print(f"[red]Error: {e}[/red]")
-        try:
-            os.remove("package.json")
-            os.remove("package-lock.json")
-        except Exception:
-            pass
         raise typer.Abort()
 
 
@@ -73,7 +59,7 @@ def dev():
     """Runs the node dev server"""
     print("[green]Running node dev server...[/green]")
     _setup_dev_env()
-    subprocess.run(["npm", "run", "dev"], cwd="+node")
+    subprocess.run(["npm", "run", "dev"], cwd=".")
 
 
 @app.command()
@@ -81,4 +67,4 @@ def build(dir: str = None):
     """Runs the node dev server"""
     print("[green]Building node app...[/green]")
 
-    subprocess.run(["npm", "run", "build"], cwd="+node")
+    subprocess.run(["npm", "run", "build"], cwd=".")
