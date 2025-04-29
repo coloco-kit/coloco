@@ -11,18 +11,25 @@ from .lifespan import execute_lifespan, register_lifespan
 import logging
 from os import environ
 from type_less import fill_type_hints
+from threading import Thread
 
 
 logging.basicConfig(level=logging.INFO)
 
 
-@asynccontextmanager
-async def generate_openapi(app: FastAPI):
-    logging.info("Generating OpenAPI schema...")
+def _generate_openapi_thread(app: FastAPI):
+    logging.info("Generating OpenAPI schema in thread...")
     generate_openapi_schema(app)
     generate_openapi_code(host=f"http://localhost:5172", diff_files=True)
 
+
+@asynccontextmanager
+async def generate_openapi(app: FastAPI):
+    generate_api_thread = Thread(target=_generate_openapi_thread, args=(app,))
+    generate_api_thread.start()
     yield
+    # TODO: possibly use a process and terminate instead?
+    generate_api_thread.join()
 
 
 def create_api(is_dev: bool = False):
@@ -72,12 +79,15 @@ def api(func):
 def _add_global_route(args, kwargs, func, method: str):
     fill_type_hints(func, use_literals=True)
 
+    module_name = func.__module__.lstrip("src.app")
+
     # Prepend module name to path
     path = args[0] if args else kwargs.get("path", "")
     path = (
         # TODO: Make this configurable
         "/api/"
-        + func.__module__.rsplit(".", 1)[0].replace(".", "/")
+        # TODO: Make this read project configuration, probably need to add routes after running
+        + module_name.rsplit(".", 1)[0].replace(".", "/")
         + ("" if path.startswith("/") else "/")
         + path
     )
@@ -90,7 +100,7 @@ def _add_global_route(args, kwargs, func, method: str):
         *args,
         **{
             **kwargs,
-            "summary": (kwargs.get("summary", "") + f" ({func.__module__})").strip(),
+            "summary": (kwargs.get("summary", "") + f" ({module_name})").strip(),
             "methods": [method],
         },
     )(func)

@@ -45,20 +45,18 @@ def generate_openapi_schema(app: FastAPI, path="/tmp/openapi.json"):
 def generate_openapi_code(
     host,
     spec_path="/tmp/openapi.json",
-    output_dir="./+app/.generated/client",
+    output_dir="./src/app/.generated/client",
     diff_files=False,
 ):
     temp_dir = "/tmp/backend_api"
     output_path = os.path.join(os.getcwd(), output_dir)
-    cwd_path = os.path.join(os.getcwd(), "+node")
 
     run(
-
         f"npx openapi-ts "
         f"--base {host} "
         f"--input {spec_path} "
         f"--output {temp_dir if diff_files else output_path} ".split(),
-        cwd=cwd_path,
+        cwd=os.getcwd(),
     )
     if diff_files:
         compare_and_copy(temp_dir, output_dir)
