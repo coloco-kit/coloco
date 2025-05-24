@@ -40,8 +40,8 @@ Serves the page `myapp.com/hello`, which calls `myapp.com/hello/test?name=Coloco
 # Running in Production
 
 - `coloco build`
-
-- `coloco serve`
+- Artifacts will be saved to `dist`
+- From dist, run `coloco serve`
 
 # Opinions
 
@@ -56,8 +56,7 @@ This framework is opinionated and combines the following excellent tools:
 # Plans
 
 - Deploy tools
-- ORM Support
-- SQLite/Postgres support
+- Migrations for ORM - `aerich` (Improvements needed, watching `tortoise-pathway`)
 - Package/share modules with git
 
 # Dreams

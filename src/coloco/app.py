@@ -1,6 +1,6 @@
 from .api import create_api, global_router
 from dataclasses import dataclass
-from .db import get_orm_config, lifecycle_connect_database
+from .db import get_orm_config, create_lifecycle_connect_database
 from fastapi import FastAPI
 from importlib import import_module
 from .lifespan import register_lifespan
@@ -17,10 +17,10 @@ class ColocoApp:
     name: str
     database_url: str = None
     orm_config: dict = None
-    migrations_dir: str = "./+migrations"
+    migrations_dir: str = "+migrations"
 
 
-def discover_files(directory, name):
+def discover_files(directory, name, is_dev=False):
     api_files = []
     try:
         with os.scandir(directory) as entries:
@@ -29,12 +29,12 @@ def discover_files(directory, name):
                     # Skip directories starting with "+" and "node_modules"
                     if (
                         not entry.name.startswith("+")
-                        and not entry.name.startswith("-")
+                        and (not entry.name.startswith("-") or is_dev)
                         and not entry.name.startswith(".")
                         and not entry.name == "node_modules"
                         and not entry.name == "coloco"
                     ):
-                        api_files.extend(discover_files(entry.path, name))
+                        api_files.extend(discover_files(entry.path, name, is_dev))
                 elif entry.is_file() and entry.name == name:
                     api_files.append(entry.path)
     except (PermissionError, FileNotFoundError) as e:
@@ -54,7 +54,7 @@ def create_app(name: str, database_url: str = None) -> ColocoApp:
     api = create_api(is_dev=mode == "dev")
 
     # Discover all api.py files from root, excluding node_modules and +app
-    api_files = discover_files(".", name="api.py")
+    api_files = discover_files(".", name="api.py", is_dev=mode == "dev")
     for api_file in api_files:
         # convert python file path to module path
         module_name = api_file.replace("./", "").replace(".py", "").replace("/", ".")
@@ -74,15 +74,19 @@ def create_app(name: str, database_url: str = None) -> ColocoApp:
     # Setup Database
     if database_url:
         orm_config = get_orm_config(
-            database_url, model_files=discover_files(".", name="models.py")
+            database_url,
+            model_files=discover_files(".", name="models.py", is_dev=mode == "dev"),
         )
-        register_lifespan(lifecycle_connect_database)
     else:
         orm_config = None
 
     CURRENT_APP = ColocoApp(
         api=api, name=name, database_url=database_url, orm_config=orm_config
     )
+
+    if database_url:
+        register_lifespan(create_lifecycle_connect_database(CURRENT_APP))
+
     return CURRENT_APP
 
 
