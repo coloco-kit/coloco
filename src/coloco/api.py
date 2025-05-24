@@ -87,7 +87,10 @@ def _add_global_route(args, kwargs, func, method: str):
         # TODO: Make this configurable
         "/api/"
         # TODO: Make this read project configuration, probably need to add routes after running
-        + module_name.rsplit(".", 1)[0].replace(".", "/")
+        + module_name.rsplit(".", 1)[0]
+        .replace(".", "/")
+        .replace(".-", ".")  # Strip - from folders (for dev only)
+        .lstrip("-")
         + ("" if path.startswith("/") else "/")
         + path
     )
