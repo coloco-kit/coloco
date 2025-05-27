@@ -57,7 +57,10 @@ This framework is opinionated and combines the following excellent tools:
 
 - Deploy tools
 - Migrations for ORM - `aerich` (Improvements needed, watching `tortoise-pathway`)
+- CRUD
+- Caching
 - Package/share modules with git
+- 
 
 # Dreams
 
