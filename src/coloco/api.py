@@ -18,6 +18,8 @@ logging.basicConfig(level=logging.INFO)
 
 
 def _generate_openapi_thread(app: FastAPI):
+    # TODO: diff check the schema json
+    # TODO: diff check not working
     logging.info("Generating OpenAPI schema in thread...")
     generate_openapi_schema(app)
     generate_openapi_code(host=f"http://localhost:5172", diff_files=True)
