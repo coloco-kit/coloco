@@ -4,17 +4,31 @@ from .codegen import (
     generate_openapi_schema,
 )
 from contextlib import asynccontextmanager
+from dataclasses import dataclass
 from .exceptions import bind_exceptions
 from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .lifespan import execute_lifespan, register_lifespan
 import logging
 from os import environ
-from type_less import fill_type_hints
 from threading import Thread
+from type_less import fill_type_hints
+from typing import Callable, TypeVar
 
 
 logging.basicConfig(level=logging.INFO)
+
+
+T = TypeVar("T")
+
+
+@dataclass
+class ColocoRoute:
+    args: tuple
+    kwargs: dict
+    func: Callable
+    method: str
+    module_name: str
 
 
 def _generate_openapi_thread(app: FastAPI):
@@ -35,16 +49,17 @@ async def generate_openapi(app: FastAPI):
 
 
 def create_api(is_dev: bool = False):
+    kwargs = {
+        "lifespan": execute_lifespan,
+    }
     if not is_dev:
         kwargs = {
+            **kwargs,
             "openapi_url": None,
             "docs_url": None,
             "redoc_url": None,
         }
     else:
-        kwargs = {
-            "lifespan": execute_lifespan,
-        }
         register_lifespan(generate_openapi)
 
     api = FastAPI(
@@ -62,7 +77,6 @@ def create_api(is_dev: bool = False):
         allow_headers=["*"],
     )
 
-    # bind_static(api)
     bind_exceptions(api, debug=is_dev)
 
     return api
@@ -70,7 +84,7 @@ def create_api(is_dev: bool = False):
 
 # ========================= Global routing =========================
 
-global_router = APIRouter()
+global_routes: list[ColocoRoute] = []
 
 
 def api(func):
@@ -79,8 +93,6 @@ def api(func):
 
 
 def _add_global_route(args, kwargs, func, method: str):
-    fill_type_hints(func, use_literals=True)
-
     module_name = func.__module__.lstrip("src.app")
 
     # Prepend module name to path
@@ -101,18 +113,11 @@ def _add_global_route(args, kwargs, func, method: str):
     else:
         kwargs["path"] = path
 
-    return global_router.api_route(
-        *args,
-        **{
-            **kwargs,
-            "summary": (kwargs.get("summary", "") + f" ({module_name})").strip(),
-            "methods": [method],
-        },
-    )(func)
+    return global_routes.append(ColocoRoute(args, kwargs, func, method, module_name))
 
 
-def _make_route_decorator(method: str):
-    def route_wrapper(*args, **kwargs):
+def _make_route_decorator(method: str) -> Callable[..., Callable[[T], T]]:
+    def route_wrapper(*args, **kwargs) -> Callable[[T], T]:
         def handler_wrapper(func):
             return _add_global_route(args, kwargs, func, method)
 
