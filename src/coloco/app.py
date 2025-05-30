@@ -1,13 +1,17 @@
-from .api import create_api, global_router
+from .api import create_api, global_routes
 from dataclasses import dataclass
-from .db import get_orm_config, create_lifecycle_connect_database
-from fastapi import FastAPI
+from .db import (
+    get_orm_config,
+    inject_model_serializers,
+    register_db_lifecycle,
+)
+from fastapi import APIRouter, FastAPI
 from importlib import import_module
-from .lifespan import register_lifespan
 import os
 from rich import print
 from .static import bind_static
 import traceback
+from type_less import fill_type_hints
 from typing import Literal
 
 
@@ -65,27 +69,48 @@ def create_app(name: str, database_url: str = None) -> ColocoApp:
             print(traceback.format_exc())
             continue
 
-    api.include_router(global_router)
-
-    # Production mode serves dist
-    if mode == "prod":
-        bind_static(api)
+    # Inject type hints
+    for route in global_routes:
+        fill_type_hints(route.func, use_literals=True)
 
     # Setup Database
-    if database_url:
+    # We need this first to grab the models for route type hints
+    has_database = bool(database_url)
+    if has_database:
         orm_config = get_orm_config(
             database_url,
             model_files=discover_files(".", name="models.py", is_dev=mode == "dev"),
         )
+        inject_model_serializers(orm_config, global_routes)
     else:
         orm_config = None
+
+    router = APIRouter()
+    for route in global_routes:
+        router.api_route(
+            *route.args,
+            **{
+                **route.kwargs,
+                **{
+                    "summary": (
+                        route.kwargs.get("summary", "") + f" ({route.module_name})"
+                    ).strip(),
+                    "methods": [route.method],
+                },
+            },
+        )(route.func)
+    api.include_router(router)
+
+    # Production mode serves dist
+    if mode == "prod":
+        bind_static(api)
 
     CURRENT_APP = ColocoApp(
         api=api, name=name, database_url=database_url, orm_config=orm_config
     )
 
     if database_url:
-        register_lifespan(create_lifecycle_connect_database(CURRENT_APP))
+        register_db_lifecycle(CURRENT_APP)
 
     return CURRENT_APP
 

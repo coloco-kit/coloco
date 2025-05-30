@@ -1,6 +1,24 @@
+from .api import ColocoRoute
 from contextlib import asynccontextmanager
 from collections import defaultdict
+from functools import wraps
+from .lifespan import register_lifespan
 from rich import print
+from type_less import replace_type_hint_map_deep
+from typing import Callable, Type, TypeVar, Optional, Any
+from pydantic import ConfigDict
+
+
+CLS = TypeVar("CLS")
+
+
+IMPORT_ERROR = (
+    "[red]Tortoise is not installed.  "
+    "Please install it with `uv add tortoise-orm`.  "
+    "If you intend to use anything other than sqlite, "
+    "you will need to install the appropriate database driver as well "
+    "(e.g. `uv add tortoise-orm[asyncpg]` for postgres).[/red]"
+)
 
 
 def app_class_to_table_name(cls):
@@ -49,13 +67,7 @@ async def init_tortoise(app):
     try:
         from tortoise import Tortoise
     except ImportError:
-        print(
-            "[red]Tortoise is not installed.  "
-            "Please install it with `pip install tortoise-orm`.  "
-            "If you intend to use anything other than sqlite, "
-            "you will need to install the appropriate database driver as well "
-            "(e.g. `pip install tortoise-orm[asyncpg]` for postgres).[/red]"
-        )
+        print(IMPORT_ERROR)
         raise
     await Tortoise.init(
         config=app.orm_config, table_name_generator=app_class_to_table_name
@@ -63,13 +75,9 @@ async def init_tortoise(app):
     return Tortoise.close_connections
 
 
-def create_lifecycle_connect_database(app):
+def register_db_lifecycle(app):
     @asynccontextmanager
     async def lifecycle_connect_database(api):
-        from .app import get_current_app
-
-        app = get_current_app()
-
         print("[green]Connecting to database...[/green]")
         close_connections = await init_tortoise(app)
         print("[green]Database ready[/green]")
@@ -77,4 +85,73 @@ def create_lifecycle_connect_database(app):
         print("[yellow]Closing database connection...[/yellow]")
         await close_connections()
 
-    return lifecycle_connect_database
+    # Register DB Connection
+    register_lifespan(lifecycle_connect_database)
+
+
+def inject_model_serializers(orm_config: dict, routes: list[ColocoRoute]):
+    try:
+        from tortoise import Tortoise
+        from tortoise.contrib.pydantic import pydantic_model_creator
+    except ImportError:
+        print(IMPORT_ERROR)
+        raise
+
+    # TODO: find out if we can init the config without initing the DB
+    Tortoise.table_name_generator = app_class_to_table_name
+    for label, _app in orm_config["apps"].items():
+        for model in _app["models"]:
+            Tortoise.init_models([model], label)
+
+    # Auto-create serializers
+    # TODO: configurable
+    model_classes = [
+        cls for models in Tortoise.apps.values() for cls in models.values()
+    ]
+    model_to_serializer = {}
+    for model_class in model_classes:
+        # Wrapped with @serializable
+        if getattr(model_class, "__model_serializer_create", None):
+            model_class.__model_serializer = pydantic_model_creator(
+                model_class, **model_class.__model_serializer_create
+            )
+        # Create a general serializer
+        elif not getattr(model_class, "__model_serializer", None):
+            model_class.__model_serializer = pydantic_model_creator(model_class)
+        model_to_serializer[model_class] = model_class.__model_serializer
+
+    for route in routes:
+        route.func.__annotations__["return"], occurrences = replace_type_hint_map_deep(
+            route.func.__annotations__["return"],
+            model_to_serializer,
+        )
+
+        # Magical model adapting (when models detected)
+        # TODO: find a better way to do this than wrapping every route
+        # We need to async eval the serialization
+        # - Middleware - can't catch pre-serialized values
+        # - Pydantic - sync serialization only
+        # - JSON Encoder - sync serialization only, + happens after serialization
+        if occurrences:
+            route.func = _wrap_model_serializer(route.func)
+
+
+async def _serialize_models(obj):
+    """
+    Auto-runs the serializer for tortoise models
+    """
+    if hasattr(obj, "__model_serializer"):
+        return await obj.__model_serializer.from_tortoise_orm(obj)
+    elif isinstance(obj, list):
+        return [await _serialize_models(item) for item in obj]
+    elif isinstance(obj, dict):
+        return {k: await _serialize_models(v) for k, v in obj.items()}
+    return obj
+
+
+def _wrap_model_serializer(func):
+    @wraps(func)
+    async def wrapper(*args, **kwargs):
+        return await _serialize_models(await func(*args, **kwargs))
+
+    return wrapper
