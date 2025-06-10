@@ -16,13 +16,13 @@ def dev(app: str | None = None, host: str = "127.0.0.1"):
 
     _verify_app(app)
 
-    # # Check Node Modules
-    # if not os.path.exists(os.path.join(os.getcwd(), "node_modules")):
-    #     print("[yellow]Node modules not found, installing...[/yellow]")
-    #     install()
+    # Check Node Modules
+    if not os.path.exists(os.path.join(os.getcwd(), "node_modules")):
+        print("[yellow]Node modules not found, installing...[/yellow]")
+        install()
 
-    # _setup_dev_env()
-    # node = Popen([f"npm run dev"], shell=True)
+    _setup_dev_env()
+    node = Popen([f"npm run dev"], shell=True)
     _serve(
         app=app,
         host=host,

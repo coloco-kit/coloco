@@ -84,7 +84,7 @@ wheels = [
 
 [[package]]
 name = "coloco"
-version = "0.3.5"
+version = "0.3.6"
 source = { editable = "." }
 dependencies = [
     { name = "cyclopts" },
@@ -102,7 +102,7 @@ requires-dist = [
     { name = "fastapi", specifier = ">=0.115.0" },
     { name = "pyjwt", specifier = ">=2.10.1" },
     { name = "tortoise-orm", extras = ["asyncpg"], specifier = ">=0.24.0" },
-    { name = "tortoise-pathway", git = "https://github.com/channelcat/tortoise-pathway?rev=multi-app-support" },
+    { name = "tortoise-pathway", git = "https://github.com/channelcat/tortoise-pathway?rev=async-migration-apply" },
     { name = "type-less", specifier = ">=0.1.16" },
     { name = "uvicorn", specifier = ">=0.31.0" },
 ]
@@ -374,7 +374,7 @@ asyncpg = [
 [[package]]
 name = "tortoise-pathway"
 version = "0.1.6"
-source = { git = "https://github.com/channelcat/tortoise-pathway?rev=multi-app-support#80b633ba57d955835131036bde293ae80bd21047" }
+source = { git = "https://github.com/channelcat/tortoise-pathway?rev=async-migration-apply#e6aec2d16ffe52cfb5e4c43e0409ad538b43b6f8" }
 dependencies = [
     { name = "tortoise-orm" },
 ]
