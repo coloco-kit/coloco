@@ -1,6 +1,6 @@
 [project]
 name = "coloco"
-version = "0.3.6"
+version = "0.4.0"
 description = "A kit for creating FastAPI + Svelte applications"
 authors = [{ name = "Channel Cat", email = "channelcat@gmail.com" }]
 dependencies = [
@@ -28,4 +28,4 @@ build-backend = "pdm.backend"
 distribution = true
 
 [tool.uv.sources]
-tortoise-pathway = { git = "https://github.com/channelcat/tortoise-pathway", rev = "multi-app-support" }
+tortoise-pathway = { git = "https://github.com/channelcat/tortoise-pathway", rev = "async-migration-apply" }
