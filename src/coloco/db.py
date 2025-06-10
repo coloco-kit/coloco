@@ -42,23 +42,13 @@ def get_orm_config(database_url: str, model_files: list[str]):
         "connections": {"default": database_url},
         "table_name_generator": app_class_to_table_name,
         "apps": {
-            **{
-                app: {
-                    "models": [
-                        *models,
-                    ],
-                    "default_connection": "default",
-                }
-                for app, models in app_to_models.items()
-            },
-            **{
-                "models": {
-                    "models": [
-                        "aerich.models",
-                    ],
-                    "default_connection": "default",
-                }
-            },
+            app: {
+                "models": [
+                    *models,
+                ],
+                "default_connection": "default",
+            }
+            for app, models in app_to_models.items()
         },
     }
 
@@ -69,9 +59,7 @@ async def init_tortoise(app):
     except ImportError:
         print(IMPORT_ERROR)
         raise
-    await Tortoise.init(
-        config=app.orm_config, table_name_generator=app_class_to_table_name
-    )
+    await Tortoise.init(config=app.orm_config, table_name_generator=app_class_to_table_name)
     return Tortoise.close_connections
 
 
@@ -105,9 +93,7 @@ def inject_model_serializers(orm_config: dict, routes: list[ColocoRoute]):
 
     # Auto-create serializers
     # TODO: configurable
-    model_classes = [
-        cls for models in Tortoise.apps.values() for cls in models.values()
-    ]
+    model_classes = [cls for models in Tortoise.apps.values() for cls in models.values()]
     model_to_serializer = {}
     for model_class in model_classes:
         # Wrapped with @serializable

@@ -57,8 +57,10 @@ def create_app(name: str, database_url: str = None) -> ColocoApp:
     mode: Literal["dev", "prod"] = os.environ.get("COLOCO_MODE", "dev")
     api = create_api(is_dev=mode == "dev")
 
+    src_path = "src"
+
     # Discover all api.py files from root, excluding node_modules and +app
-    api_files = discover_files(".", name="api.py", is_dev=mode == "dev")
+    api_files = discover_files(src_path, name="api.py", is_dev=mode == "dev")
     for api_file in api_files:
         # convert python file path to module path
         module_name = api_file.replace("./", "").replace(".py", "").replace("/", ".")
@@ -79,7 +81,7 @@ def create_app(name: str, database_url: str = None) -> ColocoApp:
     if has_database:
         orm_config = get_orm_config(
             database_url,
-            model_files=discover_files(".", name="models.py", is_dev=mode == "dev"),
+            model_files=discover_files(src_path, name="models.py", is_dev=mode == "dev"),
         )
         inject_model_serializers(orm_config, global_routes)
     else:
@@ -105,9 +107,7 @@ def create_app(name: str, database_url: str = None) -> ColocoApp:
     if mode == "prod":
         bind_static(api)
 
-    CURRENT_APP = ColocoApp(
-        api=api, name=name, database_url=database_url, orm_config=orm_config
-    )
+    CURRENT_APP = ColocoApp(api=api, name=name, database_url=database_url, orm_config=orm_config)
 
     if database_url:
         register_db_lifecycle(CURRENT_APP)
