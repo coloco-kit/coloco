@@ -1,15 +1,15 @@
 from ..app import ColocoApp
 from ..codegen import generate_openapi_schema, generate_openapi_code
+import cyclopts
 from importlib import import_module
 import os
 from rich import print
 import sys
-import typer
 from typing import Literal
 import uvicorn
 
 
-app = typer.Typer()
+app = cyclopts.App()
 
 
 def _verify_app(app: str = "src.main.app") -> ColocoApp:
@@ -17,7 +17,7 @@ def _verify_app(app: str = "src.main.app") -> ColocoApp:
         print(
             "[red]App should be the name of a variable in a python file, example: main.py -> api = main.api[/red]"
         )
-        raise typer.Abort()
+        raise SystemExit(1)
 
     module_name, var_name = app.rsplit(".", 1)
     try:
@@ -26,17 +26,17 @@ def _verify_app(app: str = "src.main.app") -> ColocoApp:
         module = import_module(module_name)
     except ModuleNotFoundError:
         print(f"[red]Module or python file {module_name} not found[/red]")
-        raise typer.Abort()
+        raise SystemExit(1)
 
     if not hasattr(module, var_name):
         print(f"[red]Variable {var_name} not found in module {module_name}[/red]")
-        raise typer.Abort()
+        raise SystemExit(1)
 
     var = getattr(module, var_name)
 
     if not isinstance(var, ColocoApp):
         print(f"[red]{var_name} is not a ColocoApp.  Please use create_app[/red]")
-        raise typer.Abort()
+        raise SystemExit(1)
 
     return var
 
@@ -50,12 +50,12 @@ def _verify_is_packaged():
         print(
             f"[red]Dist dir {dist_dir} does not exist.  Run [green]coloco build[/green] to package the app.[/red]"
         )
-        raise typer.Abort()
+        raise SystemExit(1)
     if not os.path.exists(app_dir):
         print(
             f"[red]App is missing from package directory {app_dir}.  Run [green]coloco build[/green] to package the app.[/red]"
         )
-        raise typer.Abort()
+        raise SystemExit(1)
 
 
 def _serve(

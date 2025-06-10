@@ -1,10 +1,10 @@
-import typer
+import cyclopts
 import os
 from rich import print
 import shutil
 import subprocess
 
-app = typer.Typer()
+app = cyclopts.App()
 
 
 def _run_npm(command):
@@ -13,14 +13,14 @@ def _run_npm(command):
         print(
             "[red]Error: package.json not found.  Please ensure you are in a coloco project directory.[/red]"
         )
-        raise typer.Abort()
+        raise SystemExit(1)
 
     try:
         # run npm install
         subprocess.run(command, cwd=".")
     except Exception as e:
         print(f"[red]Error: {e}[/red]")
-        raise typer.Abort()
+        raise SystemExit(1)
 
 
 def _setup_dev_env():
@@ -63,8 +63,8 @@ def dev():
 
 
 @app.command()
-def build(dir: str = None):
+def build(dir: str | None = None):
     """Runs the node dev server"""
     print("[green]Building node app...[/green]")
 
-    subprocess.run(["npm", "run", "build"], cwd=".")
+    subprocess.run(["npm", "run", "build", *(["--", "--outDir", dir] if dir else [])], cwd=".")

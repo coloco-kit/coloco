@@ -53,23 +53,28 @@ This framework is opinionated and combines the following excellent tools:
 - svelte5-router (file-based routing)
 - tortoise-orm (optional)
 
-# Plans
+# TBD Required features for launch
 
 - Deploy tools
-- Migrations for ORM - `aerich` (Improvements needed, watching `tortoise-pathway`)
+- Swap migrations to `tortoise-pathway` once cross-app migrations are supported
+- Config with secrets encryption
+- Package/share modules with git
+- Docs
+
+# Features in development
+
 - CRUD
 - Caching
-- Package/share modules with git
-- 
+- User module
+- Dev tools module
+- Admin panel module
 
 # Dreams
 
 - Move `node_modules` into `+node`
-- Somehow clean up litter from `uv`
 
-# TODO
+# Other TODO
 
-- Swap to `cyclopts` for CLI
 - Swap to `copier` for template creation
 - `Textual` CLI app / installer / dev tools?
-- Common dev `admin` module
+- Resolve duplicate types in openapi spec (due to model serializers)
