@@ -74,6 +74,7 @@ def _serve(
         port=port,
         reload=reload,
         log_level=log_level,
+        app_dir=os.getcwd(),
     )
 
 
