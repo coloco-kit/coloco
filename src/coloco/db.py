@@ -5,8 +5,7 @@ from functools import wraps
 from .lifespan import register_lifespan
 from rich import print
 from type_less import replace_type_hint_map_deep
-from typing import Callable, Type, TypeVar, Optional, Any
-from pydantic import ConfigDict
+from typing import TypeVar
 
 
 CLS = TypeVar("CLS")
@@ -89,7 +88,7 @@ def inject_model_serializers(orm_config: dict, routes: list[ColocoRoute]):
     Tortoise.table_name_generator = app_class_to_table_name
     for label, _app in orm_config["apps"].items():
         for model in _app["models"]:
-            Tortoise.init_models([model], label)
+            Tortoise.init_models([model], label, _init_relations=False)
 
     # Auto-create serializers
     # TODO: configurable
