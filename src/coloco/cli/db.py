@@ -40,7 +40,8 @@ def db_command(func):
     def wrapper(*args, **kwargs):
         tortoise_logger.setLevel(logging.WARNING)
         run(func(*args, **kwargs))
-        run(Tortoise.close_connections())
+        # TODO: figure out why the event loop is closed already when using postgres
+        # run(Tortoise.close_connections())
 
     return app.command(name=func.__name__)(wrapper)
 
