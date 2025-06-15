@@ -89,6 +89,8 @@ def inject_model_serializers(orm_config: dict, routes: list[ColocoRoute]):
     for label, _app in orm_config["apps"].items():
         for model in _app["models"]:
             Tortoise.init_models([model], label, _init_relations=False)
+    # Initialize foreign key relations
+    Tortoise._init_relations()
 
     # Auto-create serializers
     # TODO: configurable
