@@ -55,8 +55,6 @@ This framework is opinionated and combines the following excellent tools:
 
 # TBD Required features for launch
 
-- Deploy tools
-- Swap migrations to `tortoise-pathway` once cross-app migrations are supported
 - Config with secrets encryption
 - Package/share modules with git
 - Docs
