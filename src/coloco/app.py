@@ -1,6 +1,7 @@
 from .api import create_api, global_routes
 from dataclasses import dataclass
 from .db import (
+    create_model_serializers,
     get_orm_config,
     inject_model_serializers,
     register_db_lifecycle,
@@ -71,10 +72,6 @@ def create_app(name: str, database_url: str = None) -> ColocoApp:
             print(traceback.format_exc())
             continue
 
-    # Inject type hints
-    for route in global_routes:
-        fill_type_hints(route.func, use_literals=True)
-
     # Setup Database
     # We need this first to grab the models for route type hints
     has_database = bool(database_url)
@@ -83,9 +80,17 @@ def create_app(name: str, database_url: str = None) -> ColocoApp:
             database_url,
             model_files=discover_files(src_path, name="models.py", is_dev=mode == "dev"),
         )
-        inject_model_serializers(orm_config, global_routes)
+        model_to_serializer = create_model_serializers(orm_config)
     else:
         orm_config = None
+
+    # Inject type hints
+    for route in global_routes:
+        fill_type_hints(route.func, use_literals=True)
+
+    # Inject model serializers after type hints
+    if has_database:
+        inject_model_serializers(model_to_serializer, global_routes)
 
     router = APIRouter()
     for route in global_routes:

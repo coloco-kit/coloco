@@ -1,6 +1,6 @@
 [project]
 name = "coloco"
-version = "0.4.5"
+version = "0.4.6"
 description = "A kit for creating FastAPI + Svelte applications"
 authors = [{ name = "Channel Cat", email = "channelcat@gmail.com" }]
 dependencies = [
