@@ -87,12 +87,12 @@ def create_api(is_dev: bool = False):
 global_routes: list[ColocoRoute] = []
 
 
-def api(func):
+def api(func: T) -> T:
     # Auto-route
     return _add_global_route([f"/{func.__name__}"], {}, func, "GET")
 
 
-def _add_global_route(args, kwargs, func, method: str):
+def _add_global_route(args, kwargs, func: T, method: str) -> T:
     module_name = func.__module__.lstrip("src.app")
 
     # Prepend module name to path
@@ -113,7 +113,9 @@ def _add_global_route(args, kwargs, func, method: str):
     else:
         kwargs["path"] = path
 
-    return global_routes.append(ColocoRoute(args, kwargs, func, method, module_name))
+    global_routes.append(ColocoRoute(args, kwargs, func, method, module_name))
+
+    return func
 
 
 def _make_route_decorator(method: str) -> Callable[..., Callable[[T], T]]:
