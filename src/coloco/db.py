@@ -1,12 +1,14 @@
 from .api import ColocoRoute
 from contextlib import asynccontextmanager
 from collections import defaultdict
+from copy import copy
 from functools import wraps
 from .lifespan import register_lifespan
 from rich import print
+from tortoise.fields import Field
 from type_less import replace_type_hint_map_deep
-from typing import TypeVar
-
+from typing import *
+import datetime
 
 CLS = TypeVar("CLS")
 
@@ -76,7 +78,7 @@ def register_db_lifecycle(app):
     register_lifespan(lifecycle_connect_database)
 
 
-def inject_model_serializers(orm_config: dict, routes: list[ColocoRoute]):
+def create_model_serializers(orm_config: dict):
     try:
         from tortoise import Tortoise
         from tortoise.contrib.pydantic import pydantic_model_creator
@@ -99,14 +101,25 @@ def inject_model_serializers(orm_config: dict, routes: list[ColocoRoute]):
     for model_class in model_classes:
         # Wrapped with @serializable
         if getattr(model_class, "__model_serializer_create", None):
-            model_class.__model_serializer = pydantic_model_creator(
+            model_to_serializer[model_class] = pydantic_model_creator(
                 model_class, **model_class.__model_serializer_create
             )
         # Create a general serializer
-        elif not getattr(model_class, "__model_serializer", None):
-            model_class.__model_serializer = pydantic_model_creator(model_class)
-        model_to_serializer[model_class] = model_class.__model_serializer
+        elif not model_class in model_to_serializer:
+            model_to_serializer[model_class] = pydantic_model_creator(model_class)
 
+        # Inject type annotations into model
+        # TODO: find a better way to do this that's less dependent on Tortoise internals
+        description = model_class.describe(serializable=False)
+        fields = [*description["data_fields"], description["pk_field"]]
+        for field in fields:
+            if field["name"] not in model_class.__annotations__:
+                model_class.__annotations__[field["name"]] = field["python_type"]
+
+    return model_to_serializer
+
+
+def inject_model_serializers(model_to_serializer: dict, routes: list[ColocoRoute]):
     for route in routes:
         route.func.__annotations__["return"], occurrences = replace_type_hint_map_deep(
             route.func.__annotations__["return"],
@@ -120,25 +133,25 @@ def inject_model_serializers(orm_config: dict, routes: list[ColocoRoute]):
         # - Pydantic - sync serialization only
         # - JSON Encoder - sync serialization only, + happens after serialization
         if occurrences:
-            route.func = _wrap_model_serializer(route.func)
+            route.func = _wrap_model_serializer(route.func, model_to_serializer)
 
 
-async def _serialize_models(obj):
+async def _serialize_models(obj, model_to_serializer):
     """
     Auto-runs the serializer for tortoise models
     """
-    if hasattr(obj, "__model_serializer"):
-        return await obj.__model_serializer.from_tortoise_orm(obj)
+    if type(obj) in model_to_serializer:
+        return await model_to_serializer[type(obj)].from_tortoise_orm(obj)
     elif isinstance(obj, list):
-        return [await _serialize_models(item) for item in obj]
+        return [await _serialize_models(item, model_to_serializer) for item in obj]
     elif isinstance(obj, dict):
-        return {k: await _serialize_models(v) for k, v in obj.items()}
+        return {k: await _serialize_models(v, model_to_serializer) for k, v in obj.items()}
     return obj
 
 
-def _wrap_model_serializer(func):
+def _wrap_model_serializer(func, model_to_serializer):
     @wraps(func)
     async def wrapper(*args, **kwargs):
-        return await _serialize_models(await func(*args, **kwargs))
+        return await _serialize_models(await func(*args, **kwargs), model_to_serializer)
 
     return wrapper
