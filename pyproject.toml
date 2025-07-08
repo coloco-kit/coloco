@@ -1,6 +1,6 @@
 [project]
 name = "coloco"
-version = "0.4.6"
+version = "0.4.7"
 description = "A kit for creating FastAPI + Svelte applications"
 authors = [{ name = "Channel Cat", email = "channelcat@gmail.com" }]
 dependencies = [
@@ -8,7 +8,7 @@ dependencies = [
     "fastapi>=0.115.0",
     "PyJWT>=2.10.1",
     "tortoise-orm[asyncpg]>=0.24.0",
-    "tortoise-pathway==0.1.6",
+    "tortoise-pathway==0.2.0",
     "type-less>=0.1.16",
     "uvicorn>=0.31.0",
 ]
@@ -23,9 +23,16 @@ coloco = "coloco.__main__:app"
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
 
+[tool.black]
+line-length = 100
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+line_length = 100
 
 [tool.pdm]
 distribution = true
 
 [tool.uv.sources]
-tortoise-pathway = { git = "https://github.com/channelcat/tortoise-pathway", rev = "async-migration-apply" }
+tortoise-pathway = { git = "https://github.com/channelcat/tortoise-pathway", rev = "iterate-migration-apply" }
