@@ -55,7 +55,9 @@ async def get_migration_manager():
     await Tortoise.init(config=coloco_app.orm_config)
 
     # TODO: propose a patch for this
-    MigrationManager.get_migrations_dir = _get_app_migrations_path_func(coloco_app.migrations_dir)
+    MigrationManager.get_migrations_dir = _get_app_migrations_path_func(
+        coloco_app.migrations_dir
+    )
 
     manager = MigrationManager(apps, coloco_app.migrations_dir)
     await manager.initialize()
@@ -73,17 +75,16 @@ async def makemigrations(
     """Create new migration(s) based on model changes."""
     manager = await get_migration_manager()
 
-    print(f"Making migrations for {app or 'all apps'}...", end="", flush=True)
+    print(f"Making migrations for {app or 'all apps'}...")
 
-    migrations = await manager.create_migration(name, app=app, auto=True)
+    migrations = []
+    async for migration in manager.create_migrations(name, app=app, auto=True):
+        print(f" |- [yellow]{migration.display_name()}[/yellow] @ {migration.path()}")
+        migrations.append(migration)
 
     if not migrations:
         print("[gray]no changes[/gray]")
         return
-
-    print()
-    for migration in migrations:
-        print(f" |- [yellow]{migration.display_name()}[/yellow] @ {migration.path()}")
 
 
 @db_command
@@ -101,7 +102,7 @@ async def migrate(app: str | None = None) -> None:
     print(f"Applying [cyan]{len(pending)}[/cyan] migration{s}:")
 
     applied = []
-    async for migration in manager.apply_migrations_async(app=app):
+    async for migration in manager.apply_migrations(app=app):
         print(f" |- [cyan]{migration.display_name()}[/cyan]")
         applied.append(migration)
 
@@ -119,7 +120,9 @@ async def rollback(app: str | None = None, migration: str | None = None) -> None
     reverted = await manager.revert_migration(migration=migration, app=app)
 
     if reverted:
-        print(f"Successfully reverted migration: [yellow]{reverted.display_name()}[/yellow]")
+        print(
+            f"Successfully reverted migration: [yellow]{reverted.display_name()}[/yellow]"
+        )
     else:
         print("[gray]No migration was reverted.[/gray]")
 
