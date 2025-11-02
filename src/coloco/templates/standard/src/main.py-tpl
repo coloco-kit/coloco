@@ -1,0 +1,6 @@
+from coloco import create_app
+
+app = create_app(
+    name="{{ project_name }}",
+    database_url="sqlite://db.sqlite3",
+)

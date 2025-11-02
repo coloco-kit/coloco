@@ -1,0 +1,30 @@
+import path, { dirname, resolve, relative } from "node:path";
+import { fileURLToPath } from "node:url";
+import { defineConfig } from "vite";
+import { svelte } from "@sveltejs/vite-plugin-svelte";
+import tailwindcss from "@tailwindcss/vite";
+import { coloco, colocoAliases } from "@coloco/vite";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const root = resolve(__dirname, "./src");
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [tailwindcss(), svelte(), coloco()],
+  root: root,
+  server: {
+    host: "0.0.0.0",
+    port: 5173,
+  },
+  build: {
+    outDir: "../dist/app",
+    emptyOutDir: true,
+  },
+  clearScreen: false,
+  resolve: {
+    alias: [
+      ...colocoAliases(),
+      { find: "$lib", replacement: path.resolve("./src/lib") },
+    ],
+  },
+});

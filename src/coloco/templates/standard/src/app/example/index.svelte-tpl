@@ -1,0 +1,13 @@
+<script lang="ts">
+  import { test } from "./api";
+
+  const results = test({ name: "Testy McTesterson" });
+</script>
+
+{#await results}
+  <p>Loading...</p>
+{:then response}
+  <p>Hello {response.data}</p>
+{:catch error}
+  <p>Error: {error}</p>
+{/await}
