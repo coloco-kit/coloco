@@ -1,0 +1,15 @@
+import { makeClient } from "@coloco/api-client-svelte";
+
+export const client = makeClient({
+  baseUrl: import.meta.env.VITE_API_HOST,
+  throwOnError: true,
+  fetch: (request) => {
+    return fetch(request, {
+      credentials: "include",
+    });
+  },
+  errorHandler: (error) => {
+    console.error(error.stack);
+    alert(error.message);
+  },
+});

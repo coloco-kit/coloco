@@ -1,0 +1,38 @@
+<script lang="ts">
+  import "./app.css";
+
+  import { Router, getRoutes, route } from "@coloco/router";
+  import { setDefaultClient } from "@coloco/api-client-svelte";
+
+  import FavIcon from "@/assets/favicon.png";
+
+  import Index from "@app/index.svelte";
+  import NotFound from "@app/404.svelte";
+
+  import { client } from "./lib/client";
+
+  setDefaultClient(client);
+
+  const routes = getRoutes({
+    index: Index,
+    notFound: NotFound,
+  });
+</script>
+
+<svelte:head>
+  <link rel="icon" type="image/x-icon" href={FavIcon} />
+</svelte:head>
+
+<main>
+  Main Page
+
+  <br /><br />
+
+  <a use:route href="/">Home</a><br />
+  <a use:route href="/example">Example</a><br />
+  <a use:route href="/missing">Missing</a>
+
+  <br /><br />
+
+  <Router basePath="/" {routes} />
+</main>
