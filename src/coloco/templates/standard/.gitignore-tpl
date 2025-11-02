@@ -1,6 +1,20 @@
-.env
+# Node
 node_modules
-dist
-+app/.generated
 .vite
+
+# Python
 __pycache__
+
+# UV generated
+.venv
+.python-version
+
+# App Generated
+dist
+src/app/.generated
+
+# Local database
+db.sqlite3*
+
+# Local settings
+.env

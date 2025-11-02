@@ -23,8 +23,8 @@ def _run_npm(command):
         raise SystemExit(1)
 
 
-def _setup_dev_env():
-    os.environ["API_HOST"] = "http://localhost:5172"
+def _setup_dev_env(port: int = 5172):
+    os.environ["VITE_API_HOST"] = f"http://localhost:{port}"
 
 
 @app.command()
