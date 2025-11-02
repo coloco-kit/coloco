@@ -10,7 +10,7 @@ app = cyclopts.App()
 
 
 @app.default()
-def dev(app: str | None = None, host: str = "127.0.0.1"):
+def dev(app: str | None = None, host: str = "127.0.0.1", port: int = 5172):
     if not app:
         app = get_coloco_config().get("app") or "src.main.app"
 
@@ -26,7 +26,7 @@ def dev(app: str | None = None, host: str = "127.0.0.1"):
     _serve(
         app=app,
         host=host,
-        port=5172,
+        port=port,
         log_level="debug",
         mode="dev",
         reload=True,

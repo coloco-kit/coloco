@@ -11,6 +11,7 @@ class UserError(Exception):
     def __init__(self, *args: object, status_code=400, code="bad_request") -> None:
         super().__init__(*args)
         self.code = code
+        self.status_code = status_code
 
 
 class ServerError(Exception):

@@ -3,11 +3,15 @@ name = "{{ project_name }}"
 version = "0.1.0"
 description = "Your project description here"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.13"
 dependencies = [
-    "coloco>=0.2.0",
+    "coloco>={{ coloco_version }}",
+    "tortoise-pathway>=0.2.0",
 ]
 
 [tool.coloco]
-app = "main.app"
-migrations_dir = "./+migrations"
+app = "src.main.app"
+migrations_dir = "+migrations"
+
+[tool.uv.sources]
+tortoise-pathway = { git = "https://github.com/channelcat/tortoise-pathway", rev = "iterate-migration-apply" }

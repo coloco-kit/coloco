@@ -1,6 +1,5 @@
-from rich import print
-from .node import install
 import os
+from rich import print
 
 
 def createapp(name: str):
@@ -11,6 +10,7 @@ def createapp(name: str):
 
     template_vars = {
         "project_name": name,
+        "coloco_version": "0.4.8",
     }
 
     # Create directory
@@ -28,9 +28,7 @@ def createapp(name: str):
                     content = f.read()
                 for key, value in template_vars.items():
                     content = content.replace(f"{{{{ {key} }}}}", value)
-                with open(
-                    os.path.join(install_dir, relative_path, file[:-4]), "w"
-                ) as f:
+                with open(os.path.join(install_dir, relative_path, file[:-4]), "w") as f:
                     f.write(content)
 
     print(f"App created in {install_dir}")
