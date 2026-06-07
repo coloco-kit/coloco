@@ -1,12 +1,15 @@
 import os
-from rich import print
+
+from .shared.logging import get_cli_logger
+
+cli = get_cli_logger()
 
 
 def createapp(name: str):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     template_dir = f"{current_dir}/../templates/standard"
     install_dir = f"{os.getcwd()}/{name}"
-    print(f"Creating app {name}...")
+    cli.info(f"Creating app {name}...")
 
     template_vars = {
         "project_name": name,
@@ -31,6 +34,6 @@ def createapp(name: str):
                 with open(os.path.join(install_dir, relative_path, file[:-4]), "w") as f:
                     f.write(content)
 
-    print(f"App created in {install_dir}")
+    cli.info(f"App created in {install_dir}")
 
-    print(f"\nRun [green]coloco dev[/green] from [yellow]{name}[/yellow] to start the app.")
+    cli.info(f"\nRun [green]coloco dev[/green] from [yellow]{name}[/yellow] to start the app.")

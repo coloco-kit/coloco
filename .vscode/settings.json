@@ -2,6 +2,13 @@
     "editor.formatOnSave": true,
     "editor.formatOnPaste": true,
     "editor.detectIndentation": false,
+    "[python]": {
+        "editor.defaultFormatter": "charliermarsh.ruff",
+        "editor.codeActionsOnSave": {
+            "source.fixAll.ruff": "explicit",
+            "source.organizeImports.ruff": "explicit"
+        }
+    },
     "[typescript]": {
         "editor.tabSize": 2
     },

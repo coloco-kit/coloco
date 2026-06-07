@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from asyncio import iscoroutinefunction
+
 from fastapi import FastAPI
 
 lifespan_wrappers = []

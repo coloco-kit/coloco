@@ -1,17 +1,20 @@
-import cyclopts
 import os
-from rich import print
-import shutil
 import subprocess
 
+import cyclopts
+
+from .shared.logging import get_cli_logger
+
 app = cyclopts.App()
+
+cli = get_cli_logger()
 
 
 def _run_npm(command):
     # if not exists +node/package.json, raise error
     if not os.path.exists("package.json"):
-        print(
-            "[red]Error: package.json not found.  Please ensure you are in a coloco project directory.[/red]"
+        cli.error(
+            "Error: package.json not found.  Please ensure you are in a coloco project directory."
         )
         raise SystemExit(1)
 
@@ -19,7 +22,7 @@ def _run_npm(command):
         # run npm install
         subprocess.run(command, cwd=".")
     except Exception as e:
-        print(f"[red]Error: {e}[/red]")
+        cli.error(f"Error: {e}")
         raise SystemExit(1)
 
 
@@ -33,7 +36,7 @@ def install():
 
     _run_npm(["npm", "install"])
 
-    print("[green]Packages installed successfully.[/green]")
+    cli.info("[green]Packages installed successfully.[/green]")
 
 
 @app.command()
@@ -42,7 +45,7 @@ def add(package: str):
 
     _run_npm(["npm", "add", "-D", package])
 
-    print("[green]Package added successfully.[/green]")
+    cli.info("[green]Package added successfully.[/green]")
 
 
 @app.command()
@@ -51,13 +54,13 @@ def link(package: str):
 
     _run_npm(["npm", "link", package])
 
-    print("[green]Package linked successfully.[/green]")
+    cli.info("[green]Package linked successfully.[/green]")
 
 
 @app.command()
 def dev():
     """Runs the node dev server"""
-    print("[green]Running node dev server...[/green]")
+    cli.info("[green]Running node dev server...[/green]")
     _setup_dev_env()
     subprocess.run(["npm", "run", "dev"], cwd=".")
 
@@ -65,6 +68,6 @@ def dev():
 @app.command()
 def build(dir: str | None = None):
     """Runs the node dev server"""
-    print("[green]Building node app...[/green]")
+    cli.info("[green]Building node app...[/green]")
 
     subprocess.run(["npm", "run", "build", *(["--", "--outDir", dir] if dir else [])], cwd=".")

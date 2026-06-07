@@ -1,5 +1,5 @@
-import tomllib
 import os
+import tomllib
 
 
 def get_pyproject_config(path: str = "pyproject.toml"):
@@ -18,5 +18,7 @@ def get_coloco_config():
     # Get coloco config
     coloco_config = config.get("tool", {}).get("coloco")
     if not coloco_config:
-        raise LookupError("coloco config not found in pyproject.toml under [tool.coloco]")
+        raise LookupError(
+            "coloco config not found in pyproject.toml under [tool.coloco]"
+        )
     return coloco_config

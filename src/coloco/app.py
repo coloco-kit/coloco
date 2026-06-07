@@ -1,19 +1,22 @@
-from .api import create_api, global_routes
 from dataclasses import dataclass
+from importlib import import_module
+from typing import Literal
+import os
+import traceback
+
+from fastapi import APIRouter, FastAPI
+from rich import print
+from tortoise.config import TortoiseConfig
+from type_less import fill_type_hints
+
+from .api import create_api, global_routes
 from .db import (
     create_model_serializers,
     get_orm_config,
     inject_model_serializers,
     register_db_lifecycle,
 )
-from fastapi import APIRouter, FastAPI
-from importlib import import_module
-import os
-from rich import print
 from .static import bind_static
-import traceback
-from type_less import fill_type_hints
-from typing import Literal
 
 
 @dataclass
@@ -21,7 +24,7 @@ class ColocoApp:
     api: FastAPI
     name: str
     database_url: str = None
-    orm_config: dict = None
+    orm_config: TortoiseConfig = None
     migrations_dir: str = "+migrations"
 
 
@@ -66,7 +69,7 @@ def create_app(name: str, database_url: str = None) -> ColocoApp:
         # convert python file path to module path
         module_name = api_file.replace("./", "").replace(".py", "").replace("/", ".")
         try:
-            module = import_module(module_name)
+            import_module(module_name)
         except Exception as e:
             print(f"[red]Error importing '{api_file}': {e}[/red]")
             print(traceback.format_exc())
