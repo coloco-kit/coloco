@@ -1,12 +1,15 @@
 from contextlib import contextmanager
-from fastapi import FastAPI
-from fastapi.routing import APIRoute
-import json
 from subprocess import run
-
+import filecmp
+import json
+import logging
 import os
 import shutil
-import filecmp
+
+from fastapi import FastAPI
+from fastapi.routing import APIRoute
+
+logger = logging.getLogger("coloco.codegen")
 
 
 def compare_and_copy(source_dir, target_dir):
@@ -80,13 +83,23 @@ def generate_openapi_code(
     output_path = os.path.join(os.getcwd(), output_dir)
 
     with ensure_openapi_ts_config(config_path):
-        run(
+        result = run(
             f"npx openapi-ts "
             f"--base {host} "
             f"--file {config_path} "
             f"--input {spec_path} "
             f"--output {temp_dir if diff_files else output_path} ".split(),
             cwd=os.getcwd(),
+            capture_output=True,
         )
+
+        output = result.stdout.decode("utf-8")
+        error = result.stderr.decode("utf-8")
+
+        logger.info(output)
+        if result.returncode != 0:
+            logger.error(f"Failed to generate OpenAPI code: {error}")
+            raise RuntimeError(f"Failed to generate OpenAPI code: {error}")
+
         if diff_files:
             compare_and_copy(temp_dir, output_dir)

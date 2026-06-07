@@ -1,10 +1,13 @@
-from .api import _verify_app, codegen
-from ..config import get_coloco_config
-from .node import build as build_node
-import os
 from pathlib import Path
-from rich import print
+import os
 import shutil
+
+from ..config import get_coloco_config
+from .api import _verify_app, codegen
+from .node import build as build_node
+from .shared.logging import get_cli_logger
+
+cli = get_cli_logger()
 
 
 def build(
@@ -21,17 +24,17 @@ def build(
     api_dir = dist_dir / "src"
     frontend_dir = dist_dir / "static"
 
-    print(f"Clearing {dist_dir}...")
+    cli.info(f"Clearing {dist_dir}...")
     shutil.rmtree(dist_dir, ignore_errors=True)
 
     # # Codegen API
     codegen(app)
 
     # # Build node app
-    print(f"Packaging app...")
+    cli.info("Packaging app...")
     build_node(dir=frontend_dir)
 
-    print(f"Adding source files...")
+    cli.info("Adding source files...")
 
     api_dir.mkdir(parents=True, exist_ok=True)
 
@@ -52,13 +55,13 @@ def build(
             destination = api_dir / file.relative_to(source_dir)
             destination.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy(file, destination)
-            print(f" |- {file.relative_to(cwd)}")
+            cli.info(f" |- {file.relative_to(cwd)}")
 
-    print(f"Adding project files...")
+    cli.info("Adding project files...")
     shutil.copy(cwd / "pyproject.toml", dist_dir / "pyproject.toml")
     shutil.copy(cwd / "uv.lock", dist_dir / "uv.lock")
 
-    print(
+    cli.info(
         f"App packaged into {dist_dir}.\n"
         f"From the [yellow]{dist_dir}[/yellow] directory:\n"
         f"  Run [green]uv sync --frozen[/green] to install dependencies.\n"

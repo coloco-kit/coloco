@@ -1,12 +1,17 @@
-from .api import _verify_app, _serve
-import cyclopts
-from ..config import get_coloco_config
-from .node import install, _setup_dev_env
 import os
+
 from rich import print
-from subprocess import Popen
+import cyclopts
+
+from ..config import get_coloco_config
+from .api import _uvicorn_command, _verify_app
+from .node import _setup_dev_env, install
+from .shared.logging import get_cli_logger
+from .shared.muiltiprocess import Process, run_multiprocesses
 
 app = cyclopts.App()
+
+cli = get_cli_logger()
 
 
 @app.default()
@@ -18,18 +23,24 @@ def dev(app: str | None = None, host: str = "127.0.0.1", port: int = 5172):
 
     # Check Node Modules
     if not os.path.exists(os.path.join(os.getcwd(), "node_modules")):
-        print("[yellow]Node modules not found, installing...[/yellow]")
+        cli.warning("Node modules not found, installing...")
         install()
 
     _setup_dev_env()
-    node = Popen([f"npm run dev"], shell=True)
-    _serve(
-        app=app,
-        host=host,
-        port=port,
-        log_level="debug",
-        mode="dev",
-        reload=True,
+    os.environ["COLOCO_MODE"] = "dev"
+
+    run_multiprocesses(
+        [
+            Process(
+                title="Backend",
+                command=_uvicorn_command(
+                    app=app,
+                    host=host,
+                    port=port,
+                    log_level="debug",
+                    reload=True,
+                ),
+            ),
+            Process(title="Frontend", command=["npm", "run", "dev"]),
+        ]
     )
-    node.terminate()
-    node.wait()

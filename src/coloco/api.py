@@ -1,20 +1,19 @@
+from contextlib import asynccontextmanager
+from dataclasses import dataclass
+from threading import Thread
+from typing import Callable, TypeVar
+import logging
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
 from .codegen import (
     custom_generate_unique_id,
     generate_openapi_code,
     generate_openapi_schema,
 )
-from contextlib import asynccontextmanager
-from dataclasses import dataclass
 from .exceptions import bind_exceptions
-from fastapi import APIRouter, FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from .lifespan import execute_lifespan, register_lifespan
-import logging
-from os import environ
-from threading import Thread
-from type_less import fill_type_hints
-from typing import Callable, TypeVar
-
 
 logging.basicConfig(level=logging.INFO)
 
@@ -36,7 +35,7 @@ def _generate_openapi_thread(app: FastAPI):
     # TODO: diff check not working
     logging.info("Generating OpenAPI schema in thread...")
     generate_openapi_schema(app)
-    generate_openapi_code(host=f"http://localhost:5172", diff_files=True)
+    generate_openapi_code(host="http://localhost:5172", diff_files=True)
 
 
 @asynccontextmanager
@@ -69,7 +68,7 @@ def create_api(is_dev: bool = False):
     api.service = CORSMiddleware(
         app=api,
         allow_origins=[
-            f"http://localhost:5173",
+            "http://localhost:5173",
             "https://mysite.app",
         ],
         allow_credentials=True,

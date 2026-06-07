@@ -1,5 +1,5 @@
-from .api import _serve
 from ..config import get_coloco_config
+from .api import _prepare_server
 
 
 def serve(
@@ -11,4 +11,5 @@ def serve(
     if not app:
         app = get_coloco_config().get("app") or "src.main.app"
 
-    return _serve(app=app, host=host, port=port, log_level=log_level, mode="prod")
+    server = _prepare_server(app=app, host=host, port=port, log_level=log_level, mode="prod")
+    return server.run()

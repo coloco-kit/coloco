@@ -1,7 +1,8 @@
+from traceback import extract_tb, format_list
+
 from fastapi import FastAPI
-from fastapi.responses import JSONResponse
 from fastapi.requests import Request
-from traceback import format_list, extract_tb
+from fastapi.responses import JSONResponse
 
 
 class UserError(Exception):

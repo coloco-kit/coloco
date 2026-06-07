@@ -1,38 +1,30 @@
-from .api import _verify_app
-from ..app import ColocoApp, get_current_app
 from asyncio import run
-import cyclopts
+from pathlib import Path
+from typing import Callable, TypeVar
 import functools
 import logging
 import os
-from pathlib import Path
-from rich import print
-from tortoise import Tortoise
-from tortoise.log import logger as tortoise_logger
-from tortoise_pathway.migration_manager import MigrationManager
-from typing import Callable, TypeVar
 
+from tortoise import Tortoise
+from tortoise.cli import cli as tortoise_cli
+from tortoise.log import logger as tortoise_logger
+import cyclopts
+
+from ..app import ColocoApp, get_current_app
+from .api import DEFAULT_APP, _verify_app
+from .shared.logging import get_cli_logger
 
 T = TypeVar("T")
 
 
 app = cyclopts.App()
 
-
-def _get_model_apps(coloco_app: ColocoApp):
-    return [app for app in coloco_app.orm_config["apps"]]
+cli = get_cli_logger()
 
 
-def _get_coloco_app():
-    _verify_app()
+def _get_coloco_app(app: str | None = DEFAULT_APP):
+    _verify_app(app)
     return get_current_app()
-
-
-def _get_app_migrations_path_func(migrations_dir: str) -> Callable[[str], Path]:
-    def _get_app_migrations_path(self, app) -> Path:
-        return Path(os.path.join("src", "app", app, migrations_dir))
-
-    return _get_app_migrations_path
 
 
 def db_command(func):
@@ -49,20 +41,15 @@ def db_command(func):
     return app.command(name=func.__name__)(wrapper)
 
 
-async def get_migration_manager():
-    coloco_app = _get_coloco_app()
-    apps = _get_model_apps(coloco_app)
-    await Tortoise.init(config=coloco_app.orm_config)
+async def get_tortoise(coloco_app: ColocoApp):
+    return await Tortoise.init(config=coloco_app.orm_config)
 
-    # TODO: propose a patch for this
-    MigrationManager.get_migrations_dir = _get_app_migrations_path_func(
-        coloco_app.migrations_dir
-    )
 
-    manager = MigrationManager(apps, coloco_app.migrations_dir)
-    await manager.initialize()
-
-    return manager
+def prep_tortoise_cli(coloco_app: ColocoApp):
+    tortoise_cli._load_config = lambda ctx: coloco_app.orm_config
+    ctx = tortoise_cli.CLIContext(config=coloco_app.orm_config, config_file=None)
+    app_labels = coloco_app.orm_config.apps.keys()
+    return ctx, app_labels
 
 
 # ----------------------------- Commands -----------------------------
@@ -70,82 +57,67 @@ async def get_migration_manager():
 
 @db_command
 async def makemigrations(
-    app: str | None = None, name: str | None = None, empty: bool = False
+    app: str | None = DEFAULT_APP,
+    app_label: str | None = None,
+    name: str | None = None,
+    empty: bool = False,
 ) -> None:
     """Create new migration(s) based on model changes."""
-    manager = await get_migration_manager()
+    coloco_app = _get_coloco_app(app=app)
+    await get_tortoise(coloco_app)
 
-    print(f"Making migrations for {app or 'all apps'}...")
-
-    migrations = []
-    async for migration in manager.create_migrations(name, app=app, auto=True):
-        print(f" |- [yellow]{migration.display_name()}[/yellow] @ {migration.path()}")
-        migrations.append(migration)
-
-    if not migrations:
-        print("[gray]no changes[/gray]")
-        return
+    ctx, app_labels = prep_tortoise_cli(coloco_app)
+    return await tortoise_cli.makemigrations(ctx, app_labels, empty, name)
 
 
 @db_command
-async def migrate(app: str | None = None) -> None:
+async def migrate(
+    app: str | None = DEFAULT_APP,
+    app_label: str | None = None,
+    dry_run: bool = False,
+    fake: bool = False,
+) -> None:
     """Apply migrations to the database."""
-    manager = await get_migration_manager()
+    coloco_app = _get_coloco_app(app=app)
+    await get_tortoise(coloco_app)
 
-    pending = manager.get_pending_migrations(app=app)
-
-    if not pending:
-        print("[gray]No pending migrations.[/gray]")
-        return
-
-    s = "s" if len(pending) > 1 else ""
-    print(f"Applying [cyan]{len(pending)}[/cyan] migration{s}:")
-
-    applied = []
-    async for migration in manager.apply_migrations(app=app):
-        print(f" |- [cyan]{migration.display_name()}[/cyan]")
-        applied.append(migration)
-
-    if applied:
-        print(f"[green]Successfully applied {len(applied)} migration{s}[/green]")
-    else:
-        print("[gray]No migrations were applied.[/gray]")
+    ctx, _ = prep_tortoise_cli(coloco_app)
+    return await tortoise_cli.migrate(
+        ctx, migration=None, app_label=app_label, dry_run=dry_run, fake=fake
+    )
 
 
 @db_command
-async def rollback(app: str | None = None, migration: str | None = None) -> None:
+async def rollback(
+    app: str | None = DEFAULT_APP,
+    app_label: str | None = None,
+    migration: str | None = None,
+    fake: bool = False,
+    dry_run: bool = False,
+) -> None:
     """Revert the most recent migration."""
-    manager = await get_migration_manager()
+    coloco_app = _get_coloco_app(app=app)
+    await get_tortoise(coloco_app)
 
-    reverted = await manager.revert_migration(migration=migration, app=app)
-
-    if reverted:
-        print(
-            f"Successfully reverted migration: [yellow]{reverted.display_name()}[/yellow]"
-        )
-    else:
-        print("[gray]No migration was reverted.[/gray]")
+    ctx, _ = prep_tortoise_cli(coloco_app)
+    return await tortoise_cli.downgrade(
+        ctx, migration=migration, app_label=app_label, fake=fake, dry_run=dry_run
+    )
 
 
 @db_command
-async def showmigrations(app: str | None = None) -> None:
-    """Show migration status."""
-    manager = await get_migration_manager()
+async def heads(app: str | None = DEFAULT_APP) -> None:
+    coloco_app = _get_coloco_app(app=app)
+    await get_tortoise(coloco_app)
 
-    applied = manager.get_applied_migrations(app=app)
-    pending = manager.get_pending_migrations(app=app)
+    ctx, app_labels = prep_tortoise_cli(coloco_app)
+    return await tortoise_cli.heads(ctx, app_labels)
 
-    print(f"Migrations for {app}:" if app else "All Migrations:")
-    print("\nApplied migrations:")
-    if applied:
-        for migration in applied:
-            print(f"  [X] {migration.display_name()}")
-    else:
-        print("  (none)")
 
-    print("\nPending migrations:")
-    if pending:
-        for migration in pending:
-            print(f"  [ ] {migration.display_name()}")
-    else:
-        print("  (none)")
+@db_command
+async def history(app: str | None = DEFAULT_APP) -> None:
+    coloco_app = _get_coloco_app(app=app)
+    await get_tortoise(coloco_app)
+
+    ctx, app_labels = prep_tortoise_cli(coloco_app)
+    return await tortoise_cli.history(ctx, app_labels)
