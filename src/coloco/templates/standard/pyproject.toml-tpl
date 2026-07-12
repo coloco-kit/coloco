@@ -6,12 +6,9 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "coloco>={{ coloco_version }}",
-    "tortoise-pathway>=0.2.0",
+    "tortoise-orm>=1.1.7",
 ]
 
 [tool.coloco]
 app = "src.main.app"
 migrations_dir = "+migrations"
-
-[tool.uv.sources]
-tortoise-pathway = { git = "https://github.com/channelcat/tortoise-pathway", rev = "iterate-migration-apply" }
