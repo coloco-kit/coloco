@@ -16,7 +16,7 @@ app.command()(build)
 app.command()(createapp)
 app.command()(serve)
 
-# Add DB if tortoise/aerich are installed
+# Add DB if tortoise is installed
 try:
     from .cli.db import app as db_app
 

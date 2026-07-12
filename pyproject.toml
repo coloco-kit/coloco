@@ -37,7 +37,6 @@ known-third-party = [
     "fastapi",
     "rich",
     "tortoise-orm",
-    "tortoise-pathway",
     "type-less",
     "uvicorn",
 ]
