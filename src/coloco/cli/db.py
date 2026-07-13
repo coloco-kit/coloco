@@ -14,7 +14,11 @@ import cyclopts
 
 from ..app import ColocoApp, get_current_app
 from ..db import app_class_to_table_name
-from ..migrations import add_same_run_dependencies, patch_migration_loader
+from ..migrations import (
+    add_same_run_dependencies,
+    allow_unresolved_relations,
+    patch_migration_loader,
+)
 from .api import DEFAULT_APP, _verify_app
 from .shared.logging import get_cli_logger
 
@@ -76,7 +80,8 @@ async def makemigrations(
 
     ctx, app_labels = prep_tortoise_cli(coloco_app)
     if empty:
-        return await tortoise_cli.makemigrations(ctx, app_labels, empty, name)
+        with allow_unresolved_relations():
+            return await tortoise_cli.makemigrations(ctx, app_labels, empty, name)
 
     # Same flow as tortoise_cli.makemigrations, except migrations created in
     # the same run are linked together (see add_same_run_dependencies) before
@@ -95,7 +100,8 @@ async def makemigrations(
         if not tortoise_ctx.apps:
             raise ValueError("Tortoise apps are not initialized")
         autodetector = MigrationAutodetector(tortoise_ctx.apps, apps_dict)
-        writers = await autodetector.changes()
+        with allow_unresolved_relations():
+            writers = await autodetector.changes()
 
     if not writers:
         cli.info("No changes detected")

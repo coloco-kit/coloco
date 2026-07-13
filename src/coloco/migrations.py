@@ -12,6 +12,8 @@ and end up applying in alphabetical app order.  Two fixes:
   the missing graph edges from each migration's operations at load time
 """
 
+from contextlib import contextmanager
+
 from tortoise.fields.relational import (
     ForeignKeyFieldInstance,
     ManyToManyFieldInstance,
@@ -20,6 +22,7 @@ from tortoise.fields.relational import (
 from tortoise.migrations.graph import MigrationGraph, MigrationKey
 from tortoise.migrations.loader import MigrationLoader
 from tortoise.migrations.operations import CreateModel, RenameModel
+from tortoise.migrations.schema_generator.state import State
 from tortoise.migrations.writer import MigrationWriter
 
 from .cli.shared.logging import get_cli_logger
@@ -172,3 +175,21 @@ def patch_migration_loader() -> None:
     if not getattr(MigrationLoader.build_graph, "_coloco_patch", False):
         _build_graph_with_relation_dependencies._coloco_patch = True
         MigrationLoader.build_graph = _build_graph_with_relation_dependencies
+
+
+@contextmanager
+def allow_unresolved_relations():
+    """
+    Skip tortoise's per-migration relation validation.
+
+    Replaying migration history fails hard on references to models whose
+    migrations were deleted, which prevents makemigrations from regenerating
+    them. Detection only diffs states, so unresolved references are safe to
+    ignore there; migrate stays strict.
+    """
+    original = State.validate_relations_initialized
+    State.validate_relations_initialized = lambda self: None
+    try:
+        yield
+    finally:
+        State.validate_relations_initialized = original
