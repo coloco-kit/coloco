@@ -1,28 +1,20 @@
 """
-Topological ordering for tortoise migrations.
+Cross-app dependency linking for tortoise migrations.
 
 Tortoise's autodetector only records cross-app dependencies on migrations
-already on disk, so migrations that reference another app's models can be
-written without the dependency that orders them after that app's migrations,
-and end up applying in alphabetical app order.  Two fixes:
-
-- add_same_run_dependencies links migrations created in the same
-  makemigrations run before they are written to disk
-- patch_migration_loader heals already-written migration files by deriving
-  the missing graph edges from each migration's operations at load time
+already on disk, so when two apps get migrations in the same makemigrations
+run, the migration referencing another app's models would be written without
+the dependency that orders it after that app's migration, and they would
+apply in alphabetical app order.  add_same_run_dependencies links migrations
+created in the same run before they are written, so every migration file
+carries the dependencies that order it.
 """
-
-from contextlib import contextmanager
 
 from tortoise.fields.relational import (
     ForeignKeyFieldInstance,
     ManyToManyFieldInstance,
     OneToOneFieldInstance,
 )
-from tortoise.migrations.graph import MigrationGraph, MigrationKey
-from tortoise.migrations.loader import MigrationLoader
-from tortoise.migrations.operations import CreateModel, RenameModel
-from tortoise.migrations.schema_generator.state import State
 from tortoise.migrations.writer import MigrationWriter
 
 from .cli.shared.logging import get_cli_logger
@@ -105,91 +97,3 @@ def add_same_run_dependencies(writers: list[MigrationWriter]) -> None:
                 continue
             writer.dependencies.append(dependency)
             writer.dependencies.sort()
-
-
-def _graph_depends_on(graph: MigrationGraph, source: MigrationKey, target: MigrationKey) -> bool:
-    """Whether source (transitively) depends on target in the migration graph."""
-    seen = set()
-    stack = [graph.node_map[source]]
-    while stack:
-        node = stack.pop()
-        if node.key == target:
-            return True
-        if node.key in seen:
-            continue
-        seen.add(node.key)
-        stack.extend(node.parents)
-    return False
-
-
-def _add_missing_relation_dependencies(loader: MigrationLoader) -> None:
-    """
-    Add graph edges for cross-app model references that migration files fail
-    to declare (files generated before same-run dependency linking existed),
-    so existing migrations still replay and apply in topological order.
-    """
-    creators: dict[tuple[str, str], MigrationKey] = {}
-    for key in sorted(loader.disk_migrations):
-        for operation in loader.disk_migrations[key].operations:
-            if isinstance(operation, CreateModel):
-                creators.setdefault((key.app_label, operation.name), key)
-            elif isinstance(operation, RenameModel):
-                created = creators.pop((key.app_label, operation.old_name), None)
-                if created is not None:
-                    creators[(key.app_label, operation.new_name)] = created
-
-    for key, migration in loader.disk_migrations.items():
-        for reference in _iter_relation_references(migration.operations):
-            creator = creators.get(reference)
-            if creator is None:
-                related_app, related_model = reference
-                if related_app in loader.migrated_apps:
-                    cli.info(
-                        f"[yellow]Migration {key} references {related_app}.{related_model}, "
-                        f"but no migration creates that model. If its migration file was "
-                        f"deleted, restore it (or delete the migrations that reference it "
-                        f"and regenerate).[/yellow]"
-                    )
-                continue
-            if creator.app_label == key.app_label:
-                continue
-            if loader.graph.node_map[creator] in loader.graph.node_map[key].parents:
-                continue
-            # Mutual references cannot be ordered automatically; leave as-is
-            # rather than creating a dependency cycle
-            if _graph_depends_on(loader.graph, creator, key):
-                continue
-            loader.graph.add_dependency(key, key, creator, skip_validation=True)
-
-
-_original_build_graph = MigrationLoader.build_graph
-
-
-async def _build_graph_with_relation_dependencies(self: MigrationLoader) -> None:
-    await _original_build_graph(self)
-    _add_missing_relation_dependencies(self)
-
-
-def patch_migration_loader() -> None:
-    """Make every migration graph include relation-derived dependencies."""
-    if not getattr(MigrationLoader.build_graph, "_coloco_patch", False):
-        _build_graph_with_relation_dependencies._coloco_patch = True
-        MigrationLoader.build_graph = _build_graph_with_relation_dependencies
-
-
-@contextmanager
-def allow_unresolved_relations():
-    """
-    Skip tortoise's per-migration relation validation.
-
-    Replaying migration history fails hard on references to models whose
-    migrations were deleted, which prevents makemigrations from regenerating
-    them. Detection only diffs states, so unresolved references are safe to
-    ignore there; migrate stays strict.
-    """
-    original = State.validate_relations_initialized
-    State.validate_relations_initialized = lambda self: None
-    try:
-        yield
-    finally:
-        State.validate_relations_initialized = original
