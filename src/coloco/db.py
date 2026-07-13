@@ -43,7 +43,7 @@ def get_orm_config(database_url: str, model_files: list[str]):
     ]
     app_to_models = defaultdict(list)
     for model_module in model_modules:
-        app = model_module.lstrip("src.app.").split(".")[0]
+        app = model_module.removeprefix("src.app.").split(".")[0]
         app_to_models[app].append(model_module)
     return TortoiseConfig(
         connections={"default": ConnectionConfig(db_url=database_url)},

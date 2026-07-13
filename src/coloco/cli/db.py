@@ -11,6 +11,7 @@ from tortoise.log import logger as tortoise_logger
 import cyclopts
 
 from ..app import ColocoApp, get_current_app
+from ..db import app_class_to_table_name
 from .api import DEFAULT_APP, _verify_app
 from .shared.logging import get_cli_logger
 
@@ -42,7 +43,9 @@ def db_command(func):
 
 
 async def get_tortoise(coloco_app: ColocoApp):
-    return await Tortoise.init(config=coloco_app.orm_config)
+    return await Tortoise.init(
+        config=coloco_app.orm_config, table_name_generator=app_class_to_table_name
+    )
 
 
 def prep_tortoise_cli(coloco_app: ColocoApp):
