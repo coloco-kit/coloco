@@ -19,7 +19,7 @@ from tortoise.fields.relational import (
 )
 from tortoise.migrations.graph import MigrationGraph, MigrationKey
 from tortoise.migrations.loader import MigrationLoader
-from tortoise.migrations.operations import CreateModel
+from tortoise.migrations.operations import CreateModel, RenameModel
 from tortoise.migrations.writer import MigrationWriter
 
 from .cli.shared.logging import get_cli_logger
@@ -126,15 +126,29 @@ def _add_missing_relation_dependencies(loader: MigrationLoader) -> None:
     so existing migrations still replay and apply in topological order.
     """
     creators: dict[tuple[str, str], MigrationKey] = {}
-    for key, migration in loader.disk_migrations.items():
-        for operation in migration.operations:
+    for key in sorted(loader.disk_migrations):
+        for operation in loader.disk_migrations[key].operations:
             if isinstance(operation, CreateModel):
                 creators.setdefault((key.app_label, operation.name), key)
+            elif isinstance(operation, RenameModel):
+                created = creators.pop((key.app_label, operation.old_name), None)
+                if created is not None:
+                    creators[(key.app_label, operation.new_name)] = created
 
     for key, migration in loader.disk_migrations.items():
         for reference in _iter_relation_references(migration.operations):
             creator = creators.get(reference)
-            if creator is None or creator.app_label == key.app_label:
+            if creator is None:
+                related_app, related_model = reference
+                if related_app in loader.migrated_apps:
+                    cli.info(
+                        f"[yellow]Migration {key} references {related_app}.{related_model}, "
+                        f"but no migration creates that model. If its migration file was "
+                        f"deleted, restore it (or delete the migrations that reference it "
+                        f"and regenerate).[/yellow]"
+                    )
+                continue
+            if creator.app_label == key.app_label:
                 continue
             if loader.graph.node_map[creator] in loader.graph.node_map[key].parents:
                 continue
