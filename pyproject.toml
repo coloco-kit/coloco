@@ -1,6 +1,6 @@
 [project]
 name = "coloco"
-version = "0.5.1"
+version = "0.5.2"
 description = "A kit for creating FastAPI + Svelte applications"
 authors = [{ name = "Channel Cat", email = "channelcat@gmail.com" }]
 dependencies = [
@@ -9,7 +9,7 @@ dependencies = [
     "fastapi>=0.115.0",
     "PyJWT>=2.10.1",
     "rich>=14.0.0",
-    "tortoise-orm[asyncpg]>=1.1.7",
+    "tortoise-orm[asyncpg]==1.1.7",
     "type-less>=0.1.28",
     "uvicorn>=0.31.0",
 ]
